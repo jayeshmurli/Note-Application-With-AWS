@@ -12,4 +12,12 @@ public class BCryptUtil {
 		return encryptedPassword;
 	}
 
+
+	public static boolean verifyPassword (String plainTextPassword, String storedHash)
+	{
+		boolean passwordVerified = false;
+		passwordVerified = BCrypt.checkpw(plainTextPassword, storedHash);
+		return passwordVerified;
+	}
+
 }
