@@ -1,7 +1,9 @@
 package com.restapi.services;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.stereotype.Service;
 
+@Service
 public class BCryptUtil {
 	
 	// Method to generate BCrypt encrypted password  
