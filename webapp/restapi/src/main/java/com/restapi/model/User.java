@@ -1,7 +1,17 @@
 package com.restapi.model;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
+
 public class User {
+	@NotNull(message="Usename cannot be empty.")
+	@Email
 	private String username;
+	
+	@NotNull(message="Password cannot be empty.")
+	@Size(min=8,max=40, message="Password should contain minimum 8 characters.")
 	private String password;
 
 	public User() {
