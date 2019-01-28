@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restapi.model.Credentials;
 import com.restapi.model.User;
 import com.restapi.services.RegisterService;
 
@@ -20,7 +21,7 @@ public class RegisterUserController {
 	private RegisterService registerService;
 
 	@RequestMapping(value = "/user/register", method = RequestMethod.POST)
-	public User registerUser(@Valid @RequestBody  User user) {
-		return this.registerService.registerUser(user);
+	public User registerUser(@Valid @RequestBody  Credentials credentials) {
+		return this.registerService.registerUser(credentials);
 	}
 }
