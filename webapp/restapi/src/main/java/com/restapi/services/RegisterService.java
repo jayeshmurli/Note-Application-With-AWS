@@ -45,8 +45,8 @@ public class RegisterService {
 		else {
 			User user = new User(credentials.getUsername(),	this.bCrptUtil.generateEncryptedPassword(credentials.getPassword()));
 			this.userDAO.saveUser(user);
-		
-			return new ResponseEntity<Object>(user, new HttpHeaders(), HttpStatus.OK);
+			ApiResponse apiresponse = new ApiResponse(HttpStatus.OK, "User has been successfully registered", "");
+			return new ResponseEntity<Object>(apiresponse, new HttpHeaders(), HttpStatus.OK);
 		}
 	}
 }
