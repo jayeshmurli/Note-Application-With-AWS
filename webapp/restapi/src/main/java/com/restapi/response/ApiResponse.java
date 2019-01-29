@@ -1,11 +1,11 @@
-package com.restapi.exceptions;
+package com.restapi.response;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
-public class ApiError {
+public class ApiResponse {
 	 
     private HttpStatus status;
     private String message;
@@ -13,7 +13,7 @@ public class ApiError {
  
     
  
-    public ApiError(HttpStatus status, String message, String error) {
+    public ApiResponse(HttpStatus status, String message, String error) {
         super();
         this.status = status;
         this.message = message;

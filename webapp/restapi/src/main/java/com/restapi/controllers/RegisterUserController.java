@@ -5,6 +5,7 @@ package com.restapi.controllers;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +22,7 @@ public class RegisterUserController {
 	private RegisterService registerService;
 
 	@RequestMapping(value = "/user/register", method = RequestMethod.POST)
-	public User registerUser(@Valid @RequestBody  Credentials credentials) {
+	public ResponseEntity<Object> registerUser(@Valid @RequestBody  Credentials credentials) {
 		return this.registerService.registerUser(credentials);
 	}
 }
