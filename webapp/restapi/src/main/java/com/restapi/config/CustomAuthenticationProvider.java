@@ -30,49 +30,86 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 @Override
 public Authentication authenticate(Authentication auth) 
 {
-	System.out.println("inside CustomAuthenticationProvider");
+	//System.out.println("inside CustomAuthenticationProvider");
+	UsernamePasswordAuthenticationToken authenticationToken = null;
 	try
 	{
 		String username="";
 		String password="";
-		//UsernamePasswordAuthenticationToken resultAuth = new UsernamePasswordAuthenticationToken(username, password);
 		try
 		{
 			  username = String.valueOf(auth.getName());
 			  password = String.valueOf(auth.getCredentials().toString());
-			  System.out.println(username+"   "+password);
-			
+			  //System.out.println(username+"   "+password);
 		}
 		catch (Exception e) {
-			System.out.println("Exception in parsing password:"+e.getMessage());
+			//System.out.println("Exception in parsing password:"+e.getMessage());
+			username="";
+			password="";
 		}
 	   
 		try
 		{
-		    boolean authenticate = this.loginService.checkUser(username, password);
-		    System.out.println("loginService result:"+authenticate);
-		    if (authenticate)
-		    {
-//		    	return new UsernamePasswordAuthenticationToken(username, password);
-		    	Collection<? extends GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
-		    	UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password , authorities);
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                return authenticationToken;
-		    }
-		    else
-		    	throw new BadCredentialsException("invalid credentials");
+			if ((username ==null || username.contentEquals("")) && (password ==null || password.contentEquals(""))){
+//				throw new BadCredentialsException("User not logged in");
+		    	authenticationToken = new UsernamePasswordAuthenticationToken("User not logged in", password );
+		    	return authenticationToken;
+			}
+			
+			if (username ==null || username.contentEquals("")){
+//				throw new BadCredentialsException("Username not entered");
+				authenticationToken = new UsernamePasswordAuthenticationToken("Username not entered", password );
+				return authenticationToken;
+			}
+			
+			if (password ==null || password.contentEquals("")){
+//				throw new BadCredentialsException("Password not entered");
+				authenticationToken = new UsernamePasswordAuthenticationToken("Password not entered", password );
+				return authenticationToken;
+			}
+			
+			boolean userNameExists = this.loginService.checkIfUserExists(username);
+			//System.out.println("userNameExists:"+userNameExists);
+			if (!userNameExists)
+			{
+//				throw new BadCredentialsException("Username does not exist");
+				authenticationToken = new UsernamePasswordAuthenticationToken("Username does not exist", password );
+				return authenticationToken;
+			}
+			else
+			{
+			    boolean authenticate = this.loginService.checkUser(username, password);
+			    //System.out.println("loginService result:"+authenticate);
+			    if (authenticate)
+			    {
+			    	Collection<? extends GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+			    	authenticationToken = new UsernamePasswordAuthenticationToken(username, password , authorities);
+	                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+	                return authenticationToken;
+			    }
+			    else
+			    {
+//			    	throw new BadCredentialsException("Invalid Credentials");
+			    	authenticationToken = new UsernamePasswordAuthenticationToken("Invalid Credentials", password );
+			    	return authenticationToken;
+			    }
+
+			}
+
 		}
 		catch (Exception e) {
-			System.out.println("Exception in validating  CustomAuthenticationProvider:"+e.getMessage());
-			throw new BadCredentialsException("invalid provider");
+			//System.out.println("Exception in validating  CustomAuthenticationProvider:"+e.getMessage());
+//			throw e;
+			throw new BadCredentialsException("Invalid Service Provider");
 		}
-
 	    
 	}
 	catch(Exception e){
-		System.out.println("Exception in CustomAuthenticationProvider:"+e.getMessage());
-		throw new BadCredentialsException("invalid provider");
+		//System.out.println("Exception in CustomAuthenticationProvider:"+e.getMessage());
+//		throw e;
+		throw new BadCredentialsException("Invalid Service Provider");
 	}
+	//return authenticationToken;
 
     
 }

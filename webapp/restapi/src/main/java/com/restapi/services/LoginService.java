@@ -16,7 +16,7 @@ public class LoginService
 	
 	public boolean checkUser (String userName, String password)
 	{
-		System.out.println("in check user::"+password);
+		//System.out.println("in check user::"+password);
 		String hashedPwdFromDB= this.userDAO.getStoredPasswordFromUser(userName); //get stored hash from username from MYSQL
 		
 		if (hashedPwdFromDB !=null)
@@ -25,10 +25,20 @@ public class LoginService
 				return true;
 			else 
 				return false;
-			
 		}
 		else
 			return false;
+		
+	}
+	
+	public boolean checkIfUserExists (String userName )
+	{
+		int count= this.userDAO.checkIfUserExists(userName);
+		if (count>0)
+			return true;
+		else
+			return false;
+		
 		
 	}
 

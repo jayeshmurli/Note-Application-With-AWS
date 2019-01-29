@@ -34,12 +34,33 @@ public class UserDAO {
 			
 		}
 		catch (Exception e) {
-			System.out.println("caught exception in hashed_pw::");
+			//System.out.println("caught exception in hashed_pw::");
 			hashed_pw=null;
 			
 		}
 		
 	    //System.out.println("Returning hashed_pw::"+hashed_pw);
 		return hashed_pw;
+	}
+	
+	public int checkIfUserExists(String email) 
+	{
+		//System.out.println("Email is :"+email);
+		int result = 0;
+		try
+		{
+			Query query = this.entityManager.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = ?1");
+			query.setParameter(1, email);
+	        Long resultInLong = (Long) query.getSingleResult();
+	        //System.out.println("resultInLong:"+resultInLong);
+	        result = Math.toIntExact(resultInLong); 
+		}
+		catch (Exception e) {
+			//System.out.println("Exception in checkIfUserExists:"+e.getMessage());
+			result =0;
+		}
+		
+		//System.out.println("Returning count of user::"+result);
+		return result;
 	}
 }
