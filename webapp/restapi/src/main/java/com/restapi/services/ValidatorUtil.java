@@ -19,4 +19,16 @@ public class ValidatorUtil {
 		
 		return isEmail;
 	}
+	public boolean verifyPassword(String password) {
+		boolean isPassword = false;
+		
+		//Checks if password contains minimum 8 characters (can include all alphanumeric characters but no whitespaces)
+		Pattern passwordPattern = Pattern.compile("^[\\w+\\s+0-9]\\S{8,}$");
+		
+		Matcher m = passwordPattern.matcher(password);
+		isPassword = m.find();
+		
+		return isPassword;
+	}
+	
 }
