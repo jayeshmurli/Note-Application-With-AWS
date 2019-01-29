@@ -27,6 +27,11 @@ public class RegisterService {
 		if(!validUtil.verifyEmail(credentials.getUsername())){
 			throw new CustomException("Invalid email address format!");
 		}
+		
+		if (!validUtil.verifyPassword(credentials.getPassword())) {
+			 throw new CustomException("Password must contain minimum 8 characters.");
+		}
+		
 		User user = new User(credentials.getUsername(),
 				this.bCrptUtil.generateEncryptedPassword(credentials.getPassword()));
 		try {
