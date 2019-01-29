@@ -119,7 +119,4 @@ public boolean supports(Class<? extends Object> authentication) {
     return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
 }
 
-
-
-
 }
