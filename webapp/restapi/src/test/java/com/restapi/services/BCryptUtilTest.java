@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class BCryptUtilTest {
 
