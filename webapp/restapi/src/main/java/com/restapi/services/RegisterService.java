@@ -31,22 +31,22 @@ public class RegisterService {
 
 	public ResponseEntity<Object> registerUser(Credentials credentials) {
 		if(!validUtil.verifyEmail(credentials.getUsername())){
-			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Not an valid email address!", "Not an valid email address");
-			return new ResponseEntity<Object>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "Not an valid email address");
+			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
 		}
 		else if(loginService.checkIfUserExists(credentials.getUsername())) {
-			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "User with same email already exists!", "User with same email already exists");
-			return new ResponseEntity<Object>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "User with same email already exists");
+			return new ResponseEntity<Object>(apiError,  HttpStatus.BAD_REQUEST);
 		}
 		else if (!validUtil.verifyPassword(credentials.getPassword())) {
-			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Password must contain minimum 8 characters!", "Password must contain minimum 8 characters");
-			return new ResponseEntity<Object>(apiError, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "Password must contain minimum 8 characters");
+			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
 		}
 		else {
 			User user = new User(credentials.getUsername(),	this.bCrptUtil.generateEncryptedPassword(credentials.getPassword()));
 			this.userDAO.saveUser(user);
-			ApiResponse apiresponse = new ApiResponse(HttpStatus.OK, "User has been successfully registered", "");
-			return new ResponseEntity<Object>(apiresponse, new HttpHeaders(), HttpStatus.OK);
+			ApiResponse apiresponse = new ApiResponse(HttpStatus.OK, "User has been successfully registered", "NA");
+			return new ResponseEntity<Object>(apiresponse,  HttpStatus.OK);
 		}
 	}
 }

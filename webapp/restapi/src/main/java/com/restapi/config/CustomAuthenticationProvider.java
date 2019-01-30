@@ -50,21 +50,21 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 						&& (password == null || password.contentEquals(""))) {
 
 //				throw new BadCredentialsException("User not logged in");
-					authenticationToken = new UsernamePasswordAuthenticationToken("User not logged in", password,
+					authenticationToken = new UsernamePasswordAuthenticationToken("User not logged in", "",
 							new ArrayList<>());
 					return authenticationToken;
 				}
 
 				if (username == null || username.contentEquals("")) {
 //				throw new BadCredentialsException("Username not entered");
-					authenticationToken = new UsernamePasswordAuthenticationToken("Username not entered", password,
+					authenticationToken = new UsernamePasswordAuthenticationToken("Username not entered", "",
 							new ArrayList<>());
 					return authenticationToken;
 				}
 
 				if (password == null || password.contentEquals("")) {
 //				throw new BadCredentialsException("Password not entered");
-					authenticationToken = new UsernamePasswordAuthenticationToken("Password not entered", password,
+					authenticationToken = new UsernamePasswordAuthenticationToken("Password not entered", "",
 							new ArrayList<>());
 					return authenticationToken;
 				}
@@ -73,7 +73,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				// System.out.println("userNameExists:"+userNameExists);
 				if (!userNameExists) {
 //				throw new BadCredentialsException("Username does not exist");
-					authenticationToken = new UsernamePasswordAuthenticationToken("Username does not exist", password,
+					authenticationToken = new UsernamePasswordAuthenticationToken("Username does not exist", "",
 							new ArrayList<>());
 					return authenticationToken;
 				} else {
@@ -87,7 +87,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 						return authenticationToken;
 					} else {
 //			    	throw new BadCredentialsException("Invalid Credentials");
-						authenticationToken = new UsernamePasswordAuthenticationToken("Invalid Credentials", password,
+						authenticationToken = new UsernamePasswordAuthenticationToken("Invalid Credentials", "",
 								new ArrayList<>());
 						return authenticationToken;
 					}
