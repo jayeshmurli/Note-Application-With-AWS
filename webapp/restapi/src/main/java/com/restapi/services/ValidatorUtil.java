@@ -22,8 +22,8 @@ public class ValidatorUtil {
 	public boolean verifyPassword(String password) {
 		boolean isPassword = false;
 		
-		//Checks if password contains minimum 8 characters (can include all alphanumeric characters but no whitespaces)
-		Pattern passwordPattern = Pattern.compile("^[\\w+\\s+0-9]\\S{8,}$");
+		//Checks if password contains minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character
+		Pattern passwordPattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$");
 		
 		Matcher m = passwordPattern.matcher(password);
 		isPassword = m.find();
