@@ -39,7 +39,7 @@ public class RegisterService {
 			return new ResponseEntity<Object>(apiError,  HttpStatus.BAD_REQUEST);
 		}
 		else if (!validUtil.verifyPassword(credentials.getPassword())) {
-			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "Password must contain minimum 8 characters,atleast one uppercase,lowercase,digit and special character");
+			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "Password must contain minimum 8 characters,atleast one uppercase,lowercase,digit and special character and no whitespaces");
 			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
 		}
 		else {
