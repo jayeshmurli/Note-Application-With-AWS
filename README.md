@@ -29,6 +29,9 @@
    ```
    grant all privileges on CSYE6225.* to 'csye6225' identified by 'csye6225'
    ```
+   ```
+   Note : If using different MySQL credentials, you need to input the correct credentials in file webapp/src/main/resources/application.properties
+   ```
 3. Run Eclipse project imported in above steps as **SpringBoot Application**
 
 ## Running Tests
