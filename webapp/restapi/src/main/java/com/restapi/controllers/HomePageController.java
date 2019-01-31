@@ -27,7 +27,7 @@ public class HomePageController {
 			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Username not entered");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.FORBIDDEN);
 		} else if (message != null && message.contentEquals("Password not entered")) {
-			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Username not entered");
+			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Password not entered");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.FORBIDDEN);
 		} else if (message != null && message.contentEquals("Username does not exist")) {
 			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Username does not exist");
