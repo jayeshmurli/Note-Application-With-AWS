@@ -82,6 +82,3 @@ aws ec2 authorize-security-group-ingress --group-id $SECURITYGRP_ID --protocol t
 handle_creation_error $?
 
 echo "Enabled TCP traffic from anywhere to port 80"
-
-
-
