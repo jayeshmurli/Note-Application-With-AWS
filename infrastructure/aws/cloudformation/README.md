@@ -30,5 +30,5 @@ This repository contains shell scripts to create and delete AWS Virtual Private 
    ```
 4. Run shell script to create a new VPC.
    ```
-   sh script.sh <STACK_NAME>
+   sh script.sh <Template_FILE> <STACK_NAME>
    ```
