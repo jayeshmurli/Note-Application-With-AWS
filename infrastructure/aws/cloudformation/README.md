@@ -8,20 +8,15 @@ This repository contains shell scripts to create and delete AWS Virtual Private 
 - csye6225-aws-cf-terminate-stack.sh : The script automates the deletion of a previously create VPC Stack.
 
 
-## Team Information
-
-| Name | NEU ID | Email Address |
-| --- | --- | --- |
-| Shubhankar Dandekar| 001439467| dandekar.s@husky.neu.edu |
-| Jayesh Iyer|001472726 | iyer.j@husky.neu.edu|
-| Mitali Salvi|001630137  | salvi.mi@husky.neu.edu|
-| Neha Gaikwad|001886361 |gaikwad.n@husky.neu.edu |
-
-
 ## Prerequisites
 - AWS CLI
 - JQ Library for Bash
 
+
+## Configuration
+- AWS Cloud formation uses templates in either JSON or YAML format.  
+- [Sample Reference Templates](https://aws.amazon.com/cloudformation/aws-cloudformation-templates/)
+   
 
 ## Usage
 1. Clone the repository into your local folder 
@@ -29,7 +24,7 @@ This repository contains shell scripts to create and delete AWS Virtual Private 
    ```
    cd <local-folder-path>/infrastructure/aws/cloudformation/
    ```
-3. Make appropriate changes to the Cloud Formation Template as per requirements.
+3. Create new AWS Cloudformation template as per requirements and place it in same folder as the script.
    ```
    vi template.json
    ```
