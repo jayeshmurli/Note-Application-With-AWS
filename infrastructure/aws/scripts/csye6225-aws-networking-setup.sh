@@ -13,7 +13,6 @@ handle_creation_error()
 }
 
 
-echo "Enter a name for the VPC you wish to create:"
 VPC_NAME=$1
 handle_error $VPC_NAME
 echo "Creating VPC...."
@@ -25,20 +24,20 @@ aws ec2 create-tags --resources $VPC_ID --tags Key=Name,Value=$VPC_NAME-csye6225
 
 
 echo "Creating subnets...."
-SUBNET_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.0.0/26 --availability-zone us-east-1a | jq -r '.Subnet .SubnetId')
-handle_error $SUBNET_ID
-aws ec2 create-tags --resources $SUBNET_ID --tags Key=Name,Value=$VPC_NAME-csye6225-subnet1
-echo "Subnet $SUBNET_ID created for VPC $VPC_ID"
+SUBNET_ID1=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.0.0/26 --availability-zone us-east-1a | jq -r '.Subnet .SubnetId')
+handle_error $SUBNET_ID1
+aws ec2 create-tags --resources $SUBNET_ID1 --tags Key=Name,Value=$VPC_NAME-csye6225-subnet1
+echo "Subnet $SUBNET_ID1 created for VPC $VPC_ID"
 
-SUBNET_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.0.64/26 --availability-zone us-east-1b | jq -r '.Subnet .SubnetId')
-handle_error $SUBNET_ID
-aws ec2 create-tags --resources $SUBNET_ID --tags Key=Name,Value=$VPC_NAME-csye6225-subnet2
-echo "Subnet $SUBNET_ID created for VPC $VPC_ID"
+SUBNET_ID2=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.0.64/26 --availability-zone us-east-1b | jq -r '.Subnet .SubnetId')
+handle_error $SUBNET_ID2
+aws ec2 create-tags --resources $SUBNET_ID2 --tags Key=Name,Value=$VPC_NAME-csye6225-subnet2
+echo "Subnet $SUBNET_ID2 created for VPC $VPC_ID"
 
-SUBNET_ID=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.0.128/26 --availability-zone us-east-1c | jq -r '.Subnet .SubnetId')
-handle_error $SUBNET_ID
-aws ec2 create-tags --resources $SUBNET_ID --tags Key=Name,Value=$VPC_NAME-csye6225-subnet3
-echo "Subnet $SUBNET_ID created for VPC $VPC_ID"
+SUBNET_ID3=$(aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.0.128/26 --availability-zone us-east-1c | jq -r '.Subnet .SubnetId')
+handle_error $SUBNET_ID3
+aws ec2 create-tags --resources $SUBNET_ID3 --tags Key=Name,Value=$VPC_NAME-csye6225-subnet3
+echo "Subnet $SUBNET_ID3 created for VPC $VPC_ID"
 echo "Subnets Created"
 
 
@@ -59,6 +58,13 @@ ROUTETBL_ID=$(aws ec2 create-route-table --vpc-id $VPC_ID | jq -r '.RouteTable .
 handle_error $ROUTETBL_ID
 aws ec2 create-tags --resources $ROUTETBL_ID --tags Key=Name,Value=$VPC_NAME-csye6225-rt
 echo "Route Table $ROUTETBL_ID created for VPC $VPC_ID"
+
+echo "Associating subnets to route table..."
+aws ec2 associate-route-table --route-table-id $ROUTETBL_ID --subnet-id $SUBNET_ID1
+aws ec2 associate-route-table --route-table-id $ROUTETBL_ID --subnet-id $SUBNET_ID2
+aws ec2 associate-route-table --route-table-id $ROUTETBL_ID --subnet-id $SUBNET_ID3
+echo "Subnets Associated"
+
 
 echo "Creating Route...."
 ROUTE_ID=$(aws ec2 create-route --route-table-id $ROUTETBL_ID --destination-cidr-block 0.0.0.0/0 --gateway-id $IG_ID | jq -r '.Route .RouteId')
