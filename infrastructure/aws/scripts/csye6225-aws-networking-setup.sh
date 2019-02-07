@@ -44,7 +44,7 @@ echo "Subnets Created"
 echo "Creating Internet Gateway...."
 IG_ID=$(aws ec2 create-internet-gateway | jq -r '.InternetGateway .InternetGatewayId')
 handle_error $IG_ID
-aws ec2 create-tags --resources $IG_ID --tags Key=Name,Value=$IG_ID-csye6225-ig
+aws ec2 create-tags --resources $IG_ID --tags Key=Name,Value=$VPC_NAME-csye6225-ig
 echo "Internet Gateway with id $IG_ID created"
 
 echo "Attaching Internet Gate to VPC...."
