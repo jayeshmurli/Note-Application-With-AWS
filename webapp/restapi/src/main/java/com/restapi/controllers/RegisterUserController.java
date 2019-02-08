@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.restapi.model.Credentials;
+import com.restapi.json.Credentials;
 import com.restapi.model.User;
 import com.restapi.services.RegisterService;
 

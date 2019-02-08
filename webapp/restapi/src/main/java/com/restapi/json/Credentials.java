@@ -1,4 +1,4 @@
-package com.restapi.model;
+package com.restapi.json;
 
 public class Credentials {
 	private String username;
