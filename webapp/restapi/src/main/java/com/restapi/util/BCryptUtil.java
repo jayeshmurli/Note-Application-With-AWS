@@ -1,4 +1,4 @@
-package com.restapi.services;
+package com.restapi.util;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
