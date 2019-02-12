@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.NoResultException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,18 +58,20 @@ public class NoteService {
 	
 	public ResponseEntity<Object> getNoteById(String username, Long id){
 		
-		User user = this.userDAO.getUser(username);
-		List<NoteJson> notes = new ArrayList<NoteJson>();
-		for(Note not : user.getNotes()) {
-			if(not.getId() == id)
-				notes.add(new NoteJson(not));
+		Note note;
+		try {
+			note = this.noteDao.getNote(id);
 		}
-		if(notes.isEmpty()) {
-			ApiResponse resp = new ApiResponse(HttpStatus.NOT_FOUND, "The requested resource could not be found for the user", "Resource not available");
+		catch(NoResultException e){
+			ApiResponse resp = new ApiResponse(HttpStatus.NOT_FOUND, "The requested resource could not be found", "Resource not available");
 			return new ResponseEntity<Object>(resp, HttpStatus.NOT_FOUND);
 		}
+		if(!note.getCreatedBy().getUsername().equals(username)) {
+			ApiResponse resp = new ApiResponse(HttpStatus.UNAUTHORIZED, "The requested resource not authorized for the user", "Resource not available");
+			return new ResponseEntity<Object>(resp, HttpStatus.UNAUTHORIZED);
+		}
 		else {
-			return new ResponseEntity<Object>(notes, HttpStatus.OK);
+			return new ResponseEntity<Object>(new NoteJson(note), HttpStatus.OK);
 		}	
 	}
 }
