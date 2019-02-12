@@ -30,6 +30,7 @@ public class User {
 	@NotNull(message = "Password cannot be empty.")
 	@Size(min = 8, max = 255, message = "Password should contain minimum 8 characters.")
 	private String password;
+	
 	@OneToMany(mappedBy="createdBy", cascade = CascadeType.ALL)
 	private List<Note> notes = new ArrayList<Note>();
 

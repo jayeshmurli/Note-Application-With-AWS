@@ -20,6 +20,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/").authenticated();
 		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note").authenticated();
+		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note/{id}").authenticated();
 		
 		httpSecurity.csrf().disable();
 	}
