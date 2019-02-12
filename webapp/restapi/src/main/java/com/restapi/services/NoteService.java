@@ -74,4 +74,56 @@ public class NoteService {
 			return new ResponseEntity<Object>(new NoteJson(note), HttpStatus.OK);
 		}	
 	}
+	
+	public ResponseEntity<Object> deleteExistingNote(String username, Long id) 
+	{
+		//check if note exists
+		boolean noteExists = this.checkIfNoteExists(id);
+		if(!noteExists)
+		{
+			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Note does not exist", "Note does not exist");
+			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
+		}
+		
+		//get note owner
+		long noteOwnerId = this.getNoteOwner(id);
+		User user = this.userDAO.getUser(username);
+		
+		//check if note owner matches with user
+		boolean checkIfNoteBelongsToUserFlag = this.checkIfNoteBelongsToUser(user, noteOwnerId);
+		if (!checkIfNoteBelongsToUserFlag)
+		{
+			ApiResponse apiError = new ApiResponse(HttpStatus.UNAUTHORIZED, "Note does not belong to user", "Note does not belong to user");
+			return new ResponseEntity<Object>(apiError, HttpStatus.UNAUTHORIZED);
+		}
+		
+		//delete the note
+		this.noteDao.deleteNote(id);
+		return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+	}
+	
+	public boolean checkIfNoteBelongsToUser (User user, long noteOwnerId)
+	{
+		if (Long.compare(noteOwnerId,user.getId())==0)
+			return true;
+		else
+			return false;
+	}
+	
+	public Long getNoteOwner (long id)
+	{
+		Note note = this.noteDao.getNoteFromId(id);
+		return note.getCreatedBy().getId();
+	}
+	
+	public boolean checkIfNoteExists (long id)
+	{
+		Note note = this.noteDao.getNoteFromId(id);
+		if (note ==null)
+			return false;
+		else 
+			return true;
+	}
+	
+	
 }

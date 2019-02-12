@@ -8,7 +8,6 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.restapi.model.Note;
-import com.restapi.model.User;
 
 @Service
 public class NoteDAO {
@@ -27,5 +26,24 @@ public class NoteDAO {
 	public Note saveNote(Note note) {
 		this.entityManager.persist(note);
 		return note;
+	}
+	
+	@Transactional
+	public void deleteNote(long id) 
+	{
+		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
+		this.entityManager.remove(noteToBeDeleted);
+		flushAndClear();		
+	}
+	
+	public Note getNoteFromId(long id) 
+	{
+		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
+		return noteToBeDeleted;
+	}
+	
+	private void flushAndClear() {
+	    this.entityManager.flush();
+	    this.entityManager.clear();
 	}
 }
