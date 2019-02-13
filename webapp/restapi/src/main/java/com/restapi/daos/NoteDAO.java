@@ -1,5 +1,8 @@
 package com.restapi.daos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -7,6 +10,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import com.restapi.json.NoteJson;
 import com.restapi.model.Note;
 
 @Service
@@ -46,4 +50,14 @@ public class NoteDAO {
 	    this.entityManager.flush();
 	    this.entityManager.clear();
 	}
+	
+	@Transactional
+	public Note updateNote(long id)
+	{
+		  Note noteToBeUpdated = this.entityManager.find(Note.class, id);
+		  return noteToBeUpdated;
+					
+	}
+	
+	
 }
