@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.restapi.daos.NoteDAO;
 import com.restapi.daos.UserDAO;
@@ -39,6 +40,36 @@ public class NoteService {
 		newNote = this.noteDao.saveNote(newNote);
 		return new ResponseEntity<Object>(new NoteJson(newNote), HttpStatus.CREATED);
 	}
+	
+	public ResponseEntity<Object> updateExistingNote(Note note1,String username,long id){
+		Note n1;
+		User user = this.userDAO.getUser(username);
+		try {
+			n1 = this.noteDao.getNote(id);
+		}
+		catch(NoResultException e){
+			ApiResponse response = new ApiResponse(HttpStatus.NOT_FOUND, "Note does not exist!!", "Note does not exist!1");
+			return new ResponseEntity<Object>(response, HttpStatus.NOT_FOUND);
+		}
+		if(!n1.getCreatedBy().getUsername().equals(username)) {
+			ApiResponse response = new ApiResponse(HttpStatus.UNAUTHORIZED, "User is not authorized to update the note", "User is not authorized to update the note");
+			return new ResponseEntity<Object>(response, HttpStatus.UNAUTHORIZED);
+		}
+		else {
+				for(Note n : user.getNotes()) 
+				{
+					if(n.getId() == id) 
+					{
+						n.setTitle(note1.getTitle());
+						n.setContent(note1.getContent());
+				    }
+				}
+				
+		this.noteDao.updateNote(id);
+		return new ResponseEntity<Object>(new NoteJson(n1), HttpStatus.OK);
+	    }
+	}
+	 
 	
 	public ResponseEntity<Object> getNotes(String username){
 		
