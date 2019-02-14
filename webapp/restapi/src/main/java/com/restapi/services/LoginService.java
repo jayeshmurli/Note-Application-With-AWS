@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.restapi.daos.UserDAO;
+import com.restapi.util.BCryptUtil;
 
 @Service
 public class LoginService 
