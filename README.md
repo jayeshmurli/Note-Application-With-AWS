@@ -37,6 +37,41 @@
 ## Running Tests
 1. Run the restapi project imported in Eclipse as **JUnit Test**
 
+## API Guidelines
+1. **Register New user**
+   This api registers a new user in the system <br>
+   ```
+   POST /users {user object}
+   ```
+
+2. **Add new note** <br>
+   This api creates a new note in the system. <br>
+   ```
+   POST /note {note Object}
+   ```
+
+3. **Retreive notes from the system**
+   This api retreives list of all notes available for the logged in user.
+   ```
+   GET /note
+   ```
+   This api retreived a particular note authorized for the logged in user.
+   ```
+   GET /note/{NoteId}
+   ```
+
+4. **Update Existing Note** <br>
+   This api updates an existing note in the system authorized to the logged in user. <br>
+   ```
+   PUT /note/{NoteId}
+   ```  
+
+5. **Delete Existing Note** <br>
+   This api deletes an existing note from the system authorized to the logged in user. <br>
+   ```
+   DELETE /note/{NoteId}
+   ```
+
 ## CI/CD
 
 
