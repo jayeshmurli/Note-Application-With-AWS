@@ -17,11 +17,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-//		httpSecurity.authorizeRequests().anyRequest().authenticated().and().httpBasic();
-//		httpSecurity.authorizeRequests().antMatchers("/user/register").permitAll();
 		httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/").authenticated();
-//		httpSecurity.authorizeRequests().antMatchers("/user**").permitAll();
+		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note").authenticated();
+		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note/{id}").authenticated();
 		
 		httpSecurity.csrf().disable();
 	}
