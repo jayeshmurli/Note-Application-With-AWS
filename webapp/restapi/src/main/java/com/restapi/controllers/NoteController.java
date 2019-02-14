@@ -1,11 +1,8 @@
 package com.restapi.controllers;
 
-import java.util.Date;
-
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -70,4 +67,37 @@ public class NoteController {
 		
 		return this.noteService.getNoteById(message, id);
 	}
+	
+	@RequestMapping(value = "/note/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<Object> deleteNote(@PathVariable("id") Long id) 
+	{
+		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ApiResponse errorResponse;
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
+			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
+		}
+		return this.noteService.deleteExistingNote(message, id);
+	}
+
+
+    @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") Long id)
+    {
+	   String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	   ApiResponse errorResponse;
+	   if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+		errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
+		return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
+	   } 
+	   if (StringUtils.isEmpty(note.getTitle())) {
+			ApiResponse response = new ApiResponse(HttpStatus.BAD_REQUEST, "Please Enter Title", "Please Enter Title");
+			return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
+	   }
+	   if (StringUtils.isEmpty(note.getContent())) {
+			ApiResponse response = new ApiResponse(HttpStatus.BAD_REQUEST, "Please Enter Content", "Please Enter Content");
+			return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
+	   }
+	   return this.noteService.updateExistingNote(note,message, id);
+    }
 }
