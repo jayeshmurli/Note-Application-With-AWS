@@ -27,7 +27,7 @@ public class NoteController {
 	public ResponseEntity<Object> addNote(@RequestBody Note note) {
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
-		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials") || message.equals("Username not entered") || message.equals("Password not entered")) {
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -47,7 +47,7 @@ public class NoteController {
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
-		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -60,7 +60,7 @@ public class NoteController {
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
-		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -69,11 +69,11 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Object> deleteNote(@PathVariable("id") String id) 
+    public ResponseEntity<Object> deleteNote(@PathVariable("id") @NotNull String id) 
 	{
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
-		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -82,11 +82,11 @@ public class NoteController {
 
 
     @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") String id)
+    public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") @NotNull String id)
     {
 	   String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	   ApiResponse errorResponse;
-	   if (message.equals("Username does not exist") || message.equals("Invalid Credentials")) {
+	   if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
 		errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 		return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 	   } 

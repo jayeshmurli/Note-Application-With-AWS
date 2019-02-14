@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.restapi.daos.NoteDAO;
 import com.restapi.daos.UserDAO;
@@ -48,8 +47,8 @@ public class NoteService {
 			n1 = this.noteDao.getNote(id);
 		}
 		catch(NoResultException e){
-			ApiResponse response = new ApiResponse(HttpStatus.NOT_FOUND, "Note does not exist!!", "Note does not exist!1");
-			return new ResponseEntity<Object>(response, HttpStatus.NOT_FOUND);
+			ApiResponse response = new ApiResponse(HttpStatus.BAD_REQUEST, "Note does not exist.", "Note does not exist.");
+			return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
 		}
 		if(!n1.getCreatedBy().getUsername().equals(username)) {
 			ApiResponse response = new ApiResponse(HttpStatus.UNAUTHORIZED, "User is not authorized to update the note", "User is not authorized to update the note");
@@ -60,7 +59,7 @@ public class NoteService {
 		 * n.setTitle(note1.getTitle()); n.setContent(note1.getContent()); } }
 		 */	
 		this.noteDao.updateNote(note1,id);
-		return new ResponseEntity<Object>(new NoteJson(n1), HttpStatus.OK);
+		return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
 	    
 	}
 	 

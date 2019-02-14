@@ -1,9 +1,7 @@
 package com.restapi.json;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 import com.restapi.model.Note;
 
@@ -13,7 +11,7 @@ public class NoteJson {
 	private String content;
 	private Date createdOn;
 	private Date lastUpdatedOn;
-	private String createdById;
+//	private String createdById;
 
 	public NoteJson() {
 
@@ -25,7 +23,7 @@ public class NoteJson {
 		this.setContent(note.getContent());
 		this.createdOn = note.getCreatedOn();
 		this.lastUpdatedOn = note.getLastUpdatedOn();
-		this.createdById = note.getCreatedBy().getUsername();
+//		this.createdById = note.getCreatedBy().getUsername();
 	}
 
 	public String getId() {
@@ -60,13 +58,13 @@ public class NoteJson {
 		this.lastUpdatedOn = lastUpdatedOn;
 	}
 
-	public String getCreatedById() {
-		return createdById;
-	}
-
-	public void setCreatedById(String createdBy) {
-		this.createdById = createdBy;
-	}
+//	public String getCreatedById() {
+//		return createdById;
+//	}
+//
+//	public void setCreatedById(String createdBy) {
+//		this.createdById = createdBy;
+//	}
 
 	public String getContent() {
 		return content;
