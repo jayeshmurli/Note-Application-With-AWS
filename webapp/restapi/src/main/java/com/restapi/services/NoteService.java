@@ -56,7 +56,7 @@ public class NoteService {
 		}
 	}
 	
-	public ResponseEntity<Object> getNoteById(String username, Long id){
+	public ResponseEntity<Object> getNoteById(String username, String id){
 		
 		Note note;
 		try {

@@ -3,11 +3,12 @@ package com.restapi.json;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import com.restapi.model.Note;
 
 public class NoteJson {
-	private Long id;
+	private String id;
 	private String title;
 	private String content;
 	private Date createdOn;
@@ -27,11 +28,11 @@ public class NoteJson {
 		this.createdById = note.getCreatedBy().getUsername();
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

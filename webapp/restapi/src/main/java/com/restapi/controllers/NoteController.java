@@ -59,7 +59,7 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull Long id){
+	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id){
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
