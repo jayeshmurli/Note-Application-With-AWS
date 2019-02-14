@@ -55,19 +55,13 @@ public class NoteService {
 			ApiResponse response = new ApiResponse(HttpStatus.UNAUTHORIZED, "User is not authorized to update the note", "User is not authorized to update the note");
 			return new ResponseEntity<Object>(response, HttpStatus.UNAUTHORIZED);
 		}
-		else {
-				for(Note n : user.getNotes()) 
-				{
-					if(n.getId() == id) 
-					{
-						n.setTitle(note1.getTitle());
-						n.setContent(note1.getContent());
-				    }
-				}
-				
-		this.noteDao.updateNote(id);
+		/*
+		 * for(Note n : user.getNotes()) { if(n.getId() == id) {
+		 * n.setTitle(note1.getTitle()); n.setContent(note1.getContent()); } }
+		 */	
+		this.noteDao.updateNote(note1,id);
 		return new ResponseEntity<Object>(new NoteJson(n1), HttpStatus.OK);
-	    }
+	    
 	}
 	 
 	

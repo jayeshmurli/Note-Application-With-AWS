@@ -1,6 +1,7 @@
 package com.restapi.daos;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -52,10 +53,15 @@ public class NoteDAO {
 	}
 	
 	@Transactional
-	public Note updateNote(String id)
+	public Note updateNote(Note note,String id)
 	{
 		  Note noteToBeUpdated = this.entityManager.find(Note.class, id);
 		  //Write code to update the note object here and then merge changes
+		  noteToBeUpdated.setTitle(note.getTitle());
+		  noteToBeUpdated.setContent(note.getContent());
+		  Date currentDate = new Date();
+		  noteToBeUpdated.setLastUpdatedOn(currentDate);
+		  flushAndClear();
 		  return noteToBeUpdated;
 					
 	}
