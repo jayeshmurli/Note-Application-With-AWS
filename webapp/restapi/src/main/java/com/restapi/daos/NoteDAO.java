@@ -33,14 +33,14 @@ public class NoteDAO {
 	}
 	
 	@Transactional
-	public void deleteNote(long id) 
+	public void deleteNote(String id) 
 	{
 		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
 		this.entityManager.remove(noteToBeDeleted);
 		flushAndClear();		
 	}
 	
-	public Note getNoteFromId(long id) 
+	public Note getNoteFromId(String id) 
 	{
 		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
 		return noteToBeDeleted;
@@ -52,9 +52,10 @@ public class NoteDAO {
 	}
 	
 	@Transactional
-	public Note updateNote(long id)
+	public Note updateNote(String id)
 	{
 		  Note noteToBeUpdated = this.entityManager.find(Note.class, id);
+		  //Write code to update the note object here and then merge changes
 		  return noteToBeUpdated;
 					
 	}
