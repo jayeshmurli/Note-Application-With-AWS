@@ -1,7 +1,9 @@
 package com.restapi.model;
 
 import java.util.Date;
+import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -14,12 +16,18 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.GenericGenerator;
+
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "id" }))
 public class Note {
+	
 	@Id
-	@GeneratedValue
-	private Long id;
+	@GeneratedValue(generator = "UUID")
+	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+	@Column(name = "id", nullable = false, updatable = false, columnDefinition = "varchar(100)")
+	private String id;
+	
 	private String content;
 	private String title;
 	private Date createdOn;
@@ -80,13 +88,15 @@ public class Note {
 		this.createdBy = createdBy;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
+
+	
 	
 	
 

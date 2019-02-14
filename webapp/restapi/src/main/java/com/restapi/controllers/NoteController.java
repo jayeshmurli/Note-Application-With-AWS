@@ -56,7 +56,7 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull Long id){
+	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id){
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
@@ -69,7 +69,7 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Object> deleteNote(@PathVariable("id") Long id) 
+    public ResponseEntity<Object> deleteNote(@PathVariable("id") String id) 
 	{
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -82,7 +82,7 @@ public class NoteController {
 
 
     @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") Long id)
+    public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") String id)
     {
 	   String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	   ApiResponse errorResponse;

@@ -41,7 +41,7 @@ public class NoteService {
 		return new ResponseEntity<Object>(new NoteJson(newNote), HttpStatus.CREATED);
 	}
 	
-	public ResponseEntity<Object> updateExistingNote(Note note1,String username,long id){
+	public ResponseEntity<Object> updateExistingNote(Note note1,String username,String id){
 		Note n1;
 		User user = this.userDAO.getUser(username);
 		try {
@@ -87,7 +87,7 @@ public class NoteService {
 		}
 	}
 	
-	public ResponseEntity<Object> getNoteById(String username, Long id){
+	public ResponseEntity<Object> getNoteById(String username, String id){
 		
 		Note note;
 		try {
@@ -106,7 +106,7 @@ public class NoteService {
 		}	
 	}
 	
-	public ResponseEntity<Object> deleteExistingNote(String username, Long id) 
+	public ResponseEntity<Object> deleteExistingNote(String username, String id) 
 	{
 		//check if note exists
 		boolean noteExists = this.checkIfNoteExists(id);
@@ -130,6 +130,7 @@ public class NoteService {
 		
 		//delete the note
 		this.noteDao.deleteNote(id);
+		//ApiResponse apiError = new ApiResponse(HttpStatus.NO_CONTENT, "Note Deleted", "Success");
 		return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
 	}
 	
@@ -141,13 +142,13 @@ public class NoteService {
 			return false;
 	}
 	
-	public Long getNoteOwner (long id)
+	public Long getNoteOwner (String id)
 	{
 		Note note = this.noteDao.getNoteFromId(id);
 		return note.getCreatedBy().getId();
 	}
 	
-	public boolean checkIfNoteExists (long id)
+	public boolean checkIfNoteExists (String id)
 	{
 		Note note = this.noteDao.getNoteFromId(id);
 		if (note ==null)
