@@ -1,8 +1,11 @@
 package com.restapi.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,13 +24,13 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "id" }))
 public class Note {
-	
+
 	@Id
 	@GeneratedValue(generator = "UUID")
 	@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 	@Column(name = "id", nullable = false, updatable = false, columnDefinition = "varchar(100)")
 	private String id;
-	
+
 	private String content;
 	private String title;
 	private Date createdOn;
@@ -35,6 +38,9 @@ public class Note {
 	@ManyToOne
 	@JoinColumn
 	private User createdBy;
+
+	@OneToMany(mappedBy = "note", cascade = CascadeType.ALL)
+	private List<Attachment> attachments = new ArrayList<Attachment>();
 
 	public Note() {
 	}
@@ -96,8 +102,12 @@ public class Note {
 		this.id = id;
 	}
 
-	
-	
-	
+	public List<Attachment> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<Attachment> attachments) {
+		this.attachments = attachments;
+	}
 
 }
