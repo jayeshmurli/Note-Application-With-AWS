@@ -28,17 +28,13 @@ public class Attachment {
 	@JoinColumn
 	private Note note;
 
-	@Lob
-	private byte[] data;
-
 	public Attachment() {
 
 	}
 
-	public Attachment(String fileName, String fileType, byte[] data, Note note) {
+	public Attachment(String fileName, String fileType, Note note) {
 		this.fileName = fileName;
 		this.fileType = fileType;
-		this.data = data;
 		this.note = note;
 	}
 
@@ -64,14 +60,6 @@ public class Attachment {
 
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
-	}
-
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
 	}
 
 	public Note getNote() {

@@ -32,14 +32,12 @@ public class AttachmentService {
 			if (note == null) {
 				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
-			} else if (note.getCreatedBy().getUsername().equals(username)) {
-				Attachment attachment = new Attachment(file.getOriginalFilename(), file.getContentType(),
-						file.getBytes(), note);
-				attachmentJSON = new AttachmentJSON(this.attachmentDAO.saveNote(attachment));
-			} else {
+			} else if (!note.getCreatedBy().getUsername().equals(username)) {
 				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
 						"Resource not owned by user");
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
+			} else {
+				attachmentJSON = new AttachmentJSON(this.attachmentDAO.saveAttachment(file, note));
 			}
 
 		} catch (Exception e) {
