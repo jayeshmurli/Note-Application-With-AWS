@@ -21,6 +21,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/").authenticated();
 		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note").authenticated();
 		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note/{id}").authenticated();
+		httpSecurity.httpBasic().and().authorizeRequests().antMatchers("/note/{id}/attachments").authenticated();
 		
 		httpSecurity.csrf().disable();
 	}
