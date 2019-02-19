@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.restapi.daos.UserDAO;
-import com.restapi.model.Credentials;
+import com.restapi.json.Credentials;
 import com.restapi.model.User;
 import com.restapi.response.ApiResponse;
+import com.restapi.util.BCryptUtil;
+import com.restapi.util.ValidatorUtil;
 
 @Service
 public class RegisterService {
