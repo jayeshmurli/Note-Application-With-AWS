@@ -1,6 +1,8 @@
 package com.restapi.services;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,5 +47,29 @@ public class AttachmentService {
 		}
 
 		return new ResponseEntity<Object>(attachmentJSON, HttpStatus.CREATED);
+	}
+	
+	public ResponseEntity<Object> getAttachmenttoNote(String username, String noteId) {
+		List<AttachmentJSON> attachmentJSON = new ArrayList<AttachmentJSON>();
+		ApiResponse apiResponse = null;
+		try {
+			Note note = this.noteDAO.getNoteFromId(noteId);
+			if (note == null) {
+				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
+				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
+			} else if (!note.getCreatedBy().getUsername().equals(username)) {
+				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
+						"Resource not owned by user");
+				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
+			} else {
+				for(Attachment at : this.attachmentDAO.getAttachmentFromNote(note))
+					attachmentJSON.add( new AttachmentJSON(at));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<Object>(attachmentJSON, HttpStatus.OK);
 	}
 }
