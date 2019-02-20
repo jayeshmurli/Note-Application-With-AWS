@@ -1,0 +1,27 @@
+{
+   "AWSTemplateFormatVersion" : "2010-09-09",
+   "Parameters" : {
+        "NetworkStackName": {
+            "Type": "String",
+            "Description" : "Please enter string for stack name"
+         }
+   },
+   "Resources" : {
+       "WebServerInstance": {  
+           "Type": "AWS::EC2::Instance",
+           "Properties": {
+               "InstanceType"   : "t2.micro",
+               "ImageId"	: "ami-0339c975c83ec3248",
+	       "KeyName"	: "aws_id_rsa",
+	       "NetworkInterfaces" : [{
+                    "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}, 
+		    				  { "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-SSHSecurityGroupID" }} ], 
+                    "AssociatePublicIpAddress" : "true",
+		    "DeviceIndex"	       : "0",
+                    "DeleteOnTermination"      : "true",
+                    "SubnetId"                 : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" } } 
+               }]
+           }
+       }
+   }
+}   
