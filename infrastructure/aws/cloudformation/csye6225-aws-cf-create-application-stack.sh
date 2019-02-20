@@ -4,8 +4,8 @@
 #########################################################################
 ### Author 	: Jayesh Iyer   					#
 ### NUID   	: 001472726     					#
-### Description : This script creates a vpc stack on AWS CLI using 	#
-###		  Cloud Formation Template.				#
+### Description : This script creates a application stack on AWS CLI  	#
+###		  using Cloud Formation Template.			#
 #########################################################################
 
 

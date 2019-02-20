@@ -7,7 +7,7 @@ else
 	echo "Initiating with deletion of stack using cloudformation"
 fi
 
-var1=$(aws cloudformation describe-stacks --stack-name "$1" --query "Stacks[0].StackId" --output text 2>&1)
+var1=$(aws cloudformation describe-stacks --stack-name "$1-Network" --query "Stacks[0].StackId" --output text 2>&1)
 
 if [ $? -eq 0 ]
     then
@@ -18,7 +18,7 @@ if [ $? -eq 0 ]
 
    if [ $? -eq 0 ]
         then
-            echo "Stack $1 successfully deleted!!!"
+            echo "Stack $1-Netowrk successfully deleted!!!"
    else
  	    echo "Failed Stack deletion"
  	    exit 1
@@ -27,7 +27,7 @@ if [ $? -eq 0 ]
    
 
 else
-	echo "Stack $1 doesn't exist"
+	echo "Stack $1-Network doesn't exist"
 	exit 0
 fi
 

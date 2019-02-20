@@ -7,13 +7,11 @@ public class AttachmentJSON {
 	private String id;
 	private String fileName;
 	private String fileType;
-	private String noteId;
 
 	public AttachmentJSON(Attachment attachment) {
 		this.id = attachment.getId();
 		this.fileName = attachment.getFileName();
 		this.fileType = attachment.getFileType();
-		this.noteId = attachment.getNote().getId();
 	}
 
 	public String getId() {
@@ -38,14 +36,6 @@ public class AttachmentJSON {
 
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
-	}
-
-	public String getNoteId() {
-		return noteId;
-	}
-
-	public void setNoteId(String noteId) {
-		this.noteId = noteId;
 	}
 
 }
