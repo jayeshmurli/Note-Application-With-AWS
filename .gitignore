@@ -99,8 +99,8 @@ venv.bak/
 
 # mkdocs documentation
 /site
-
+/webapp/restapi/src/main/resources/attachments/
 # mypy
 .mypy_cache/
-.orig
+*.orig
 .attach*

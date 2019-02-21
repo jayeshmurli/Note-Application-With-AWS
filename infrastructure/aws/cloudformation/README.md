@@ -6,6 +6,8 @@ This repository contains shell scripts to create and delete AWS Virtual Private 
 ## Contents
 - csye6225-aws-cf-create-stack.sh : The script automates the creation of a custom IPv4 VPC, having 3 public subnets, a public route table and an Internet gateway.
 - csye6225-aws-cf-terminate-stack.sh : The script automates the deletion of a previously create VPC Stack.
+- csye6225-aws-cf-create-application-stack.sh : This script automates the creation of an application Stack consisting of EC2 Instance for WebApp , RDS Instance for MariaDB and DynamoDBi.
+- csye6225-aws-cf-terminate-application-stack.sh : This script automates the deletion of a previously created application stack.
 
 
 ## Prerequisites
@@ -28,7 +30,19 @@ This repository contains shell scripts to create and delete AWS Virtual Private 
    ```
    vi template.json
    ```
-4. Run shell script to create a new VPC.
+4. Run network stack creation script to create a new VPC.
    ```
-   sh script.sh <Template_FILE> <STACK_NAME>
+   sh csye6225-aws-cf-create-stack.sh <Template_FILE> <STACK_NAME>
+   ```
+   Run application stack creation script to create a new Application Stack.
+   ```
+   sh csye6225-aws-cf-create-application-stack.sh <Template_FILE> <STACK_NAME> <AWS_KeyPair_NAME>
+   ```
+5. Run network deletion script to delete an existing VPC Stack.
+   ```
+   sh csye6225-aws-cf-terminate-stack.sh <STACK_NAME>
+   ```
+   Run application deletion script to delete an application stack.
+   ```
+   sh csye6225-aws-cf-terminate-application-stack.sh <STACK_NAME>
    ```
