@@ -1,6 +1,6 @@
 package com.restapi.daos;
 
-import java.io.IOException;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,5 +48,47 @@ public class AttachmentDAO {
 				Attachment.class);
 		query.setParameter(1, note);
 		return query.getResultList();
+	}
+	
+	public Attachment getAttachmentFromId(String id) 
+	{
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		return attachmentToBeDeleted;
+	}
+	
+	@Transactional
+	public void deleteAttachment(String id) 
+	{
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		this.entityManager.remove(attachmentToBeDeleted);
+		flushAndClear();		
+	}
+	
+	private void flushAndClear() {
+	    this.entityManager.flush();
+	    this.entityManager.clear();
+	}
+	
+	public boolean deleteFromMemory (Attachment attachmentToBeDeleted)
+	{
+		String path = attachmentToBeDeleted.getFileName();
+		//System.out.println("Path from DB::"+path);
+		//System.out.println("Present Project Directory : "+ System.getProperty("user.dir"));
+
+		try {
+			java.io.File fileToBeDeleted = new java.io.File((System.getProperty("user.dir")+"/"+path));
+			//System.out.println(fileToBeDeleted.getCanonicalPath());
+			if(fileToBeDeleted.delete()) { 
+	            return true;
+	        } 
+	        else{ 
+	            return false;
+	        }
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+ 
 	}
 }
