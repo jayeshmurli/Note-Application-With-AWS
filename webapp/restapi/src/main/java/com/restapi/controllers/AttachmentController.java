@@ -59,4 +59,15 @@ public class AttachmentController {
 		}
 		return this.attachmentService.deleteAttachmentToNote(message, noteId , attachmentId);
 	}
+	
+	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.PUT	)
+	public ResponseEntity<Object> updateAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId, @RequestParam("file") MultipartFile file) {
+		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ApiResponse errorResponse;
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
+			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
+			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
+		}
+		return this.attachmentService.updateAttachmentToNote(message, noteId , attachmentId, file);
+	}
 }

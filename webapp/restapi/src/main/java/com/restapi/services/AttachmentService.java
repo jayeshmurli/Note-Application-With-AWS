@@ -114,4 +114,50 @@ public class AttachmentService {
 		return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
 		
 	}
+	
+	public ResponseEntity<Object> updateAttachmentToNote(String username, String noteId , String attachmentId,MultipartFile file) 
+	{
+		ApiResponse apiResponse = null;
+		AttachmentJSON attachmentJSON;
+		try {
+			Note note = this.noteDAO.getNoteFromId(noteId);
+			if (note == null) {
+				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
+				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
+			} else if (!note.getCreatedBy().getUsername().equals(username)) {
+				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
+						"Resource not owned by user");
+				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
+			} 
+			else 
+			{
+				Attachment attachmentToBeDeleted = this.attachmentDAO.getAttachmentFromId(attachmentId);
+				if (attachmentToBeDeleted == null) {
+					apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Attachment not found", "Attachment not found");
+					return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
+				}else
+				{
+					//delete actual file from local/S3 bucket
+					boolean successfullyDeleted = this.attachmentDAO.deleteFromMemory(attachmentToBeDeleted);
+					if (successfullyDeleted)
+					{	this.attachmentDAO.deleteAttachment(attachmentId);
+					attachmentJSON = new AttachmentJSON(this.attachmentDAO.saveAttachment(file, note));
+					}
+					else
+					{
+						apiResponse = new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
+								"Resource could not be deleted");
+						return new ResponseEntity<Object>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+					}
+				}
+				
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<Object>(null, HttpStatus.NO_CONTENT);
+		
+	}
 }
