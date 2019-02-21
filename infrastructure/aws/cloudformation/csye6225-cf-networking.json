@@ -101,10 +101,22 @@
                   "FromPort" : "80",  
                   "ToPort" : "80",
                   "CidrIp" : "0.0.0.0/0"
+              },
+	      {
+		  "IpProtocol" : "tcp",
+	          "FromPort" : "22",
+	  	  "ToPort" : "22",
+	 	  "CidrIp" : "0.0.0.0/0"	  
+	      },
+	      {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "443",
+                  "ToPort" : "443",
+                  "CidrIp" : "0.0.0.0/0"
               } ]
       	  }
       },
-      "SSHServerSecurityGroup" : {
+      "DBServerSecurityGroup" : {
           "Type" : "AWS::EC2::SecurityGroup",
           "Properties" : {
               "GroupDescription" : "Enable SSH ingress",
@@ -114,6 +126,12 @@
                   "FromPort" : "22",  
                   "ToPort" : "22",
                   "CidrIp" : "0.0.0.0/0"
+              },
+	      {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "3306",
+                  "ToPort" : "3306",
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "WebServerSecurityGroup" , "GroupId" ] }  
               } ]
       	  }
       }
@@ -129,15 +147,20 @@
       "Value" :  { "Ref" : "mySubnet1" },
       "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-SubnetID" }}
     },
+    "DBPublicSubnet" : {
+      "Description" : "The subnet ID to use for public DB servers",
+      "Value" :  { "Ref" : "mySubnet2" },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSubnetID" }}
+    },
     "WebServerSecurityGroup" : {
       "Description" : "The security group ID to use for public web servers",
       "Value" :  { "Fn::GetAtt" : ["WebServerSecurityGroup", "GroupId"] },
       "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-WebSecurityGroupID" }}
     },
-    "SSHServerSecurityGroup" : {
+    "DBServerSecurityGroup" : {
       "Description" : "The security group ID to use for public web servers",
-      "Value" :  { "Fn::GetAtt" : ["SSHServerSecurityGroup", "GroupId"] },
-      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-SSHSecurityGroupID" }}
+      "Value" :  { "Fn::GetAtt" : ["DBServerSecurityGroup", "GroupId"] },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSecurityGroupID" }}
     }
   }
 }     
