@@ -112,6 +112,7 @@ public class AttachmentDAO {
 		return attachmentToBeDeleted;
 	}
 
+	@Transactional
 	public void deleteAttachment( String id) {
 		if (this.islocal) {
 			 this.deleteAttachmentFromLocal(id);
@@ -152,6 +153,13 @@ public class AttachmentDAO {
 			e.printStackTrace();
 		}
 		
+		deleteFromDB(id);
+	}
+	
+	@Transactional
+	public void deleteFromDB (String id)
+	{
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		try{
 			this.entityManager.remove(attachmentToBeDeleted);
 			flushAndClear();
@@ -159,6 +167,7 @@ public class AttachmentDAO {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) {
@@ -194,20 +203,44 @@ public class AttachmentDAO {
 	{
 		//delete actual file from local
 		boolean successfullyDeleted = deleteFromMemory(attachment);
+		
+		if (successfullyDeleted) 
+		{ 
+			saveAttachmentToLocalMemory(file, note); 
+		}
+		 
+
+		Attachment attachmentToBeUpdated1 =null;
 		if (successfullyDeleted)
-		{	
-			deleteAttachment(id);
-			saveAttachment(file, note);
+		{
+			//update entry from DB
+			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
+			String filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
+					+ FilenameUtils.getExtension(file.getOriginalFilename());
+			Path path = Paths.get(UPLOADED_FOLDER + filename);
+			attachment = new Attachment(path.toString(), file.getContentType(), note);
+			attachmentToBeUpdated1 =updateInDB(id, attachment);
+			
 		}
 
-		//deleting entry from DB
-		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
-	      attachmentToBeUpdated.setFileName(attachment.getFileName());
-		  attachmentToBeUpdated.setFileType(attachment.getFileType());
-		  flushAndClear();
-		  return attachmentToBeUpdated;
+		return attachmentToBeUpdated1;
 	}
 	
+	private void saveAttachmentToLocalMemory(MultipartFile file, Note note) {
+		String filename ="";
+		try {
+			Files.createDirectories(Paths.get(UPLOADED_FOLDER));
+			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
+			filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
+					+ FilenameUtils.getExtension(file.getOriginalFilename());
+			Path path = Paths.get(UPLOADED_FOLDER + filename);
+			Files.write(path, file.getBytes());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Transactional
 	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment,MultipartFile file, Note note) 
 	{
 		//delete actual file from S3bucket
@@ -223,16 +256,36 @@ public class AttachmentDAO {
 		}
 		
 		//save new file in S3bucket
-		saveAttachmentToS3Bucket(file, note);
-		
+		try {
+			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
+			filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
+					+ FilenameUtils.getExtension(file.getOriginalFilename());
+			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
+			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			File tempFile = this.convert(file);
+			s3Client.putObject(new PutObjectRequest(this.bucketName, filename, tempFile));
+			String path = s3Client.getResourceUrl(this.bucketName, filename);
+			tempFile.delete();
+			attachment = new Attachment(path, file.getContentType(), note);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 
-		//deleting entry from DB
+		//update entry from DB
+		Attachment attachmentToBeUpdated1 =updateInDB(id, attachment);
+		return attachmentToBeUpdated1;
+	}
+	
+	@Transactional
+	public Attachment updateInDB (String id, Attachment attachment)
+	{
 		Attachment attachmentToBeUpdated1 = this.entityManager.find(Attachment.class, id);
 	      attachmentToBeUpdated1.setFileName(attachment.getFileName());
 		  attachmentToBeUpdated1.setFileType(attachment.getFileType());
 		  flushAndClear();
 		  return attachmentToBeUpdated1;
+		
 	}
 	
 	
