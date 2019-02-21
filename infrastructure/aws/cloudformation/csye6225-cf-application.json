@@ -33,6 +33,7 @@
        "DynamoDBInstance" : {
            "Type" : "AWS::DynamoDB::Table",
 	   "Properties" : {
+	       "TableName": "csye6225",
 	       "AttributeDefinitions" : [ { 
 	           "AttributeName" : "id", 
 	           "AttributeType" : "S" 
@@ -47,6 +48,16 @@
                }   
            }
        },
+       "myDBSubnetGroup" : {
+         "Type" : "AWS::RDS::DBSubnetGroup",
+         "Properties" : {
+            "DBSubnetGroupDescription" : "DB subnet group for RDS",
+            "SubnetIds" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" } },
+		            { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID2" } }
+	   	          ],
+            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
+         }
+       },
        "MariaDBInstance" : {
            "Type" : "AWS::RDS::DBInstance",
            "Properties" : {
@@ -54,6 +65,7 @@
                "DBInstanceClass" : "db.t2.medium",
 	       "AllocatedStorage" : "50",
 	       "MultiAZ" : false,
+	       "DBSubnetGroupName" : { "Ref" : "myDBSubnetGroup" },
 	       "DBInstanceIdentifier" : "csye6225-spring2019",	       
                "Engine" : "MariaDB",
                "MasterUsername" : "csye6225master" ,
