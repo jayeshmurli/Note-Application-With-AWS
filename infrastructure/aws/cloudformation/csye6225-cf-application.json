@@ -1,0 +1,80 @@
+{
+   "AWSTemplateFormatVersion" : "2010-09-09",
+   "Parameters" : {
+        "NetworkStackName": {
+            "Type": "String",
+            "Description" : "Please enter string for stack name"
+         },
+        "ImageId": {
+            "Type": "String",
+            "Description" : "Please enter string for AMI Image Id"
+         },
+        "KeyName": {
+            "Type": "String",
+            "Description" : "Please enter string for Key Name"
+         }
+   },
+   "Resources" : {
+       "WebServerInstance": {  
+           "Type": "AWS::EC2::Instance",
+           "Properties": {
+               "InstanceType"   : "t2.micro",
+               "ImageId"	: {"Ref" : "ImageId" },
+	       "KeyName"	: {"Ref" : "KeyName" },
+	       "NetworkInterfaces" : [{
+                    "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}], 
+                    "AssociatePublicIpAddress" : "true",
+		    "DeviceIndex"	       : "0",
+                    "DeleteOnTermination"      : "true",
+                    "SubnetId"                 : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" } } 
+               }]
+           }
+       },
+       "DynamoDBInstance" : {
+           "Type" : "AWS::DynamoDB::Table",
+	   "Properties" : {
+	       "TableName": "csye6225",
+	       "AttributeDefinitions" : [ { 
+	           "AttributeName" : "id", 
+	           "AttributeType" : "S" 
+	       } ],
+	       "KeySchema" : [ { 
+	           "AttributeName" : "id",
+	           "KeyType" : "HASH"
+	       } ],
+	       "ProvisionedThroughput" : {
+                   "ReadCapacityUnits" : "5",
+                   "WriteCapacityUnits" : "5"
+               }   
+           }
+       },
+       "myDBSubnetGroup" : {
+         "Type" : "AWS::RDS::DBSubnetGroup",
+         "Properties" : {
+            "DBSubnetGroupDescription" : "DB subnet group for RDS",
+            "SubnetIds" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" } },
+		            { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID2" } }
+	   	          ],
+            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
+         }
+       },
+       "MariaDBInstance" : {
+           "Type" : "AWS::RDS::DBInstance",
+           "Properties" : {
+               "DBName" : "csye6225",
+               "DBInstanceClass" : "db.t2.medium",
+	       "AllocatedStorage" : "50",
+	       "MultiAZ" : false,
+	       "DBSubnetGroupName" : { "Ref" : "myDBSubnetGroup" },
+	       "DBInstanceIdentifier" : "csye6225-spring2019",	       
+               "Engine" : "MariaDB",
+               "MasterUsername" : "csye6225master" ,
+               "MasterUserPassword" : "csye6225password",
+	       "PubliclyAccessible" : true,
+	       "VPCSecurityGroups" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSecurityGroupID" } } ],
+               "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
+           },
+           "DeletionPolicy" : "Snapshot"
+       }
+   }  
+}   

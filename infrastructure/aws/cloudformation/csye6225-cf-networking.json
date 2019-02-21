@@ -11,9 +11,8 @@
          "Type" : "AWS::EC2::VPC",
          "Properties" : {
             "CidrBlock" : "10.0.0.0/16",
-    	    "EnableDnsSupport" : "false",
-    	    "EnableDnsHostnames" : "false",
-            "InstanceTenancy" : "dedicated",
+    	    "EnableDnsSupport" : "true",
+    	    "EnableDnsHostnames" : "true",
 	    "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "StackName" }, "csye6225-vpc"]]}}]
          }
       },
@@ -91,7 +90,82 @@
             "DestinationCidrBlock" : "0.0.0.0/0",
             "GatewayId" : { "Ref" : "myInternetGateway" }
          }
+      },
+      "WebServerSecurityGroup" : {
+          "Type" : "AWS::EC2::SecurityGroup",
+          "Properties" : {
+              "GroupDescription" : "Enable HTTP ingress",
+              "VpcId" : { "Ref" : "myvpcstack" },
+              "SecurityGroupIngress" : [ { 
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "80",  
+                  "ToPort" : "80",
+                  "CidrIp" : "0.0.0.0/0"
+              },
+	      {
+		  "IpProtocol" : "tcp",
+	          "FromPort" : "22",
+	  	  "ToPort" : "22",
+	 	  "CidrIp" : "0.0.0.0/0"	  
+	      },
+	      {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "443",
+                  "ToPort" : "443",
+                  "CidrIp" : "0.0.0.0/0"
+              } ]
+      	  }
+      },
+      "DBServerSecurityGroup" : {
+          "Type" : "AWS::EC2::SecurityGroup",
+          "Properties" : {
+              "GroupDescription" : "Enable SSH ingress",
+              "VpcId" : { "Ref" : "myvpcstack" },
+              "SecurityGroupIngress" : [ { 
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "22",  
+                  "ToPort" : "22",
+                  "CidrIp" : "0.0.0.0/0"
+              },
+	      {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "3306",
+                  "ToPort" : "3306",
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "WebServerSecurityGroup" , "GroupId" ] }  
+              } ]
+      	  }
       }
-
-   }
+   },
+   "Outputs" : {
+    "VPCId" : {
+      "Description" : "VPC ID",
+      "Value" :  { "Ref" : "myvpcstack" },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-VPCID" }}
+    },
+    "PublicSubnet" : {
+      "Description" : "The subnet ID to use for public web servers",
+      "Value" :  { "Ref" : "mySubnet1" },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-SubnetID" }}
+    },
+    "DBPublicSubnet1" : {
+      "Description" : "The subnet ID to use for public DB servers",
+      "Value" :  { "Ref" : "mySubnet2" },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSubnetID1" }}
+    },
+    "DBPublicSubnet2" : {
+      "Description" : "The subnet ID to use for public DB servers",
+      "Value" :  { "Ref" : "mySubnet3" },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSubnetID2" }}
+    },
+    "WebServerSecurityGroup" : {
+      "Description" : "The security group ID to use for public web servers",
+      "Value" :  { "Fn::GetAtt" : ["WebServerSecurityGroup", "GroupId"] },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-WebSecurityGroupID" }}
+    },
+    "DBServerSecurityGroup" : {
+      "Description" : "The security group ID to use for public web servers",
+      "Value" :  { "Fn::GetAtt" : ["DBServerSecurityGroup", "GroupId"] },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSecurityGroupID" }}
+    }
+  }
 }     
