@@ -4,6 +4,14 @@
         "NetworkStackName": {
             "Type": "String",
             "Description" : "Please enter string for stack name"
+         },
+        "ImageId": {
+            "Type": "String",
+            "Description" : "Please enter string for AMI Image Id"
+         },
+        "KeyName": {
+            "Type": "String",
+            "Description" : "Please enter string for Key Name"
          }
    },
    "Resources" : {
@@ -11,17 +19,49 @@
            "Type": "AWS::EC2::Instance",
            "Properties": {
                "InstanceType"   : "t2.micro",
-               "ImageId"	: "ami-0339c975c83ec3248",
-	       "KeyName"	: "aws_id_rsa",
+               "ImageId"	: {"Ref" : "ImageId" },
+	       "KeyName"	: {"Ref" : "KeyName" },
 	       "NetworkInterfaces" : [{
-                    "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}, 
-		    				  { "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-SSHSecurityGroupID" }} ], 
+                    "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}], 
                     "AssociatePublicIpAddress" : "true",
 		    "DeviceIndex"	       : "0",
                     "DeleteOnTermination"      : "true",
                     "SubnetId"                 : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" } } 
                }]
            }
+       },
+       "DynamoDBInstance" : {
+           "Type" : "AWS::DynamoDB::Table",
+	   "Properties" : {
+	       "AttributeDefinitions" : [ { 
+	           "AttributeName" : "id", 
+	           "AttributeType" : "S" 
+	       } ],
+	       "KeySchema" : [ { 
+	           "AttributeName" : "id",
+	           "KeyType" : "HASH"
+	       } ],
+	       "ProvisionedThroughput" : {
+                   "ReadCapacityUnits" : "5",
+                   "WriteCapacityUnits" : "5"
+               }   
+           }
+       },
+       "MariaDBInstance" : {
+           "Type" : "AWS::RDS::DBInstance",
+           "Properties" : {
+               "DBName" : "csye6225",
+               "DBInstanceClass" : "db.t2.medium",
+	       "AllocatedStorage" : "50",
+	       "MultiAZ" : false,
+	       "DBInstanceIdentifier" : "csye6225-spring2019",	       
+               "Engine" : "MariaDB",
+               "MasterUsername" : "csye6225master" ,
+               "MasterUserPassword" : "csye6225password",
+	       "PubliclyAccessible" : true,
+               "Tags" : [ { "Key" : "Name", "Value" : "My SQL Database" } ]
+           },
+           "DeletionPolicy" : "Snapshot"
        }
-   }
+   }  
 }   
