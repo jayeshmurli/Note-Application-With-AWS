@@ -22,7 +22,6 @@
             "VpcId" : { "Ref" : "myvpcstack" },
             "CidrBlock" : "10.0.1.0/24",
             "AvailabilityZone" : "us-east-1a",
-            "MapPublicIpOnLaunch":true,
 	    "Tags" : [{"Key" : "Name", "Value" : "subnet1" }]
          }
       },
@@ -114,8 +113,7 @@
                   "FromPort" : "443",
                   "ToPort" : "443",
                   "CidrIp" : "0.0.0.0/0"
-              } ],
-              "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "StackName" } , "csye6225-ws-security-group"]]}}]
+              } ]
       	  }
       },
       "DBServerSecurityGroup" : {
@@ -134,8 +132,7 @@
                   "FromPort" : "3306",
                   "ToPort" : "3306",
                   "SourceSecurityGroupId" : { "Fn::GetAtt": [ "WebServerSecurityGroup" , "GroupId" ] }  
-              } ],
-              "Tags" : [{"Key" : "Name", "Value" : {"Fn::Join" : [ "-", [ {"Ref" : "StackName" } , "csye6225-db-security-group"]]}}]
+              } ]
       	  }
       }
    },

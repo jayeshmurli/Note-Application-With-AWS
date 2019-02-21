@@ -12,26 +12,6 @@
         "KeyName": {
             "Type": "String",
             "Description" : "Please enter string for Key Name"
-         },
-         "WebServerSGID": {
-             "Type": "String",
-             "Description" : "Please enter string for web server security group"
-         },
-         "DBServerSGID": {
-             "Type": "String",
-             "Description" : "Please enter string for db server security group"
-         },
-         "Subnet1": {
-             "Type": "String",
-             "Description" : "Please enter string for subnet 1"
-         },
-         "Subnet2": {
-             "Type": "String",
-             "Description" : "Please enter string for subnet 2"
-         },
-         "Subnet3": {
-             "Type": "String",
-             "Description" : "Please enter string for subnet 3"
          }
    },
    "Resources" : {
@@ -40,11 +20,14 @@
            "Properties": {
                "InstanceType"   : "t2.micro",
                "ImageId"	: {"Ref" : "ImageId" },
-           "KeyName"	: {"Ref" : "KeyName" },
-           "SecurityGroupIds": [
-            {"Ref" : "WebServerSGID" }
-           ],
-           "SubnetId" : {"Ref" : "Subnet1" }
+	       "KeyName"	: {"Ref" : "KeyName" },
+	       "NetworkInterfaces" : [{
+                    "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}], 
+                    "AssociatePublicIpAddress" : "true",
+		    "DeviceIndex"	       : "0",
+                    "DeleteOnTermination"      : "true",
+                    "SubnetId"                 : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" } } 
+               }]
            }
        },
        "DynamoDBInstance" : {
@@ -69,8 +52,8 @@
          "Type" : "AWS::RDS::DBSubnetGroup",
          "Properties" : {
             "DBSubnetGroupDescription" : "DB subnet group for RDS",
-            "SubnetIds" : [ 
-                {"Ref" : "Subnet1" },{"Ref" : "Subnet2" }
+            "SubnetIds" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" } },
+		            { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID2" } }
 	   	          ],
             "Tags" : [ {"Key" : "String", "Value" : "String"} ]
          }
@@ -88,10 +71,8 @@
                "MasterUsername" : "csye6225master" ,
                "MasterUserPassword" : "csye6225password",
 	       "PubliclyAccessible" : true,
-               "Tags" : [ { "Key" : "Name", "Value" : "My SQL Database" } ],
-               "VPCSecurityGroups": [
-                {"Ref" : "DBServerSGID" }
-               ]
+	       "VPCSecurityGroups" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSecurityGroupID" } } ],
+               "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
            },
            "DeletionPolicy" : "Snapshot"
        }
