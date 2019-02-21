@@ -12,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +22,7 @@ import com.restapi.model.Note;
 @Service
 public class AttachmentDAO {
 
-	private static String UPLOADED_FOLDER = "src//main//resources//attachments//";
+	private static String UPLOADED_FOLDER = System.getProperty("user.dir")+"//attachments//";
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -32,7 +33,10 @@ public class AttachmentDAO {
 		String filename;
 		try {
 			Files.createDirectories(Paths.get(UPLOADED_FOLDER));
-			filename = file.getOriginalFilename() + "_" + new Date().getTime();
+			String fileNameWithOutExt = FilenameUtils.removeExtension( file.getOriginalFilename());
+			filename = fileNameWithOutExt + "_" + new Date().getTime()+"."+FilenameUtils.getExtension(file.getOriginalFilename());
+			//System.out.println("filename::"+filename);
+
 			Path path = Paths.get(UPLOADED_FOLDER + filename);
 			Files.write(path, file.getBytes());
 			attachment = new Attachment(path.toString(), file.getContentType(), note);
@@ -72,12 +76,9 @@ public class AttachmentDAO {
 	public boolean deleteFromMemory (Attachment attachmentToBeDeleted)
 	{
 		String path = attachmentToBeDeleted.getFileName();
-		//System.out.println("Path from DB::"+path);
-		//System.out.println("Present Project Directory : "+ System.getProperty("user.dir"));
 
 		try {
-			java.io.File fileToBeDeleted = new java.io.File((System.getProperty("user.dir")+"/"+path));
-			//System.out.println(fileToBeDeleted.getCanonicalPath());
+			java.io.File fileToBeDeleted = new java.io.File((path));
 			if(fileToBeDeleted.delete()) { 
 	            return true;
 	        } 
