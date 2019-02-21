@@ -15,6 +15,8 @@ import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,8 +29,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.restapi.json.AttachmentJSON;
 import com.restapi.model.Attachment;
 import com.restapi.model.Note;
+import com.restapi.response.ApiResponse;
 
 @Service
 public class AttachmentDAO {
@@ -108,16 +112,53 @@ public class AttachmentDAO {
 		return attachmentToBeDeleted;
 	}
 
-	@Transactional
-	public void deleteAttachment(String id) {
-		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
-		this.entityManager.remove(attachmentToBeDeleted);
-		flushAndClear();
+	public void deleteAttachment( String id) {
+		if (this.islocal) {
+			 this.deleteAttachmentFromLocal(id);
+		} else {
+			 this.deleteAttachmentFromS3Bucket(id);
+		}
+
 	}
 
+	@Transactional
+	public void deleteAttachmentFromLocal(String id) 
+	{
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		boolean successfullyDeleted = deleteFromMemory(attachmentToBeDeleted);
+		if (successfullyDeleted)
+		{
+			this.entityManager.remove(attachmentToBeDeleted);
+			flushAndClear();
+		}
+	}
+	
 	private void flushAndClear() {
 		this.entityManager.flush();
 		this.entityManager.clear();
+	}
+	
+	@Transactional
+	public void deleteAttachmentFromS3Bucket(String id) 
+	{
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		String entirePath = attachmentToBeDeleted.getFileName();
+		String filename = entirePath.substring(entirePath.lastIndexOf("/")+1);
+		try {
+			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
+			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			s3Client.deleteObject(this.bucketName,filename);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try{
+			this.entityManager.remove(attachmentToBeDeleted);
+			flushAndClear();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) {
@@ -136,13 +177,62 @@ public class AttachmentDAO {
 		}
 
 	}
+	
+	
 	@Transactional
-	public Attachment updateAttachment(String id, Attachment attachment) {
+	public Attachment updateAttachment(String id, Attachment attachment,MultipartFile file, Note note) 
+	{
+		if (this.islocal) {
+			 return this.updateAttachmentFromLocal(id, attachment, file, note);
+		} else {
+			 return this.updateAttachmentFromS3Bucket(id, attachment, file, note);
+		}
+	}
+	
+	@Transactional
+	public Attachment updateAttachmentFromLocal(String id, Attachment attachment,MultipartFile file, Note note) 
+	{
+		//delete actual file from local
+		boolean successfullyDeleted = deleteFromMemory(attachment);
+		if (successfullyDeleted)
+		{	
+			deleteAttachment(id);
+			saveAttachment(file, note);
+		}
+
+		//deleting entry from DB
 		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
 	      attachmentToBeUpdated.setFileName(attachment.getFileName());
 		  attachmentToBeUpdated.setFileType(attachment.getFileType());
 		  flushAndClear();
 		  return attachmentToBeUpdated;
+	}
+	
+	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment,MultipartFile file, Note note) 
+	{
+		//delete actual file from S3bucket
+		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
+		String entirePath = attachmentToBeUpdated.getFileName();
+		String filename = entirePath.substring(entirePath.lastIndexOf("/")+1);
+		try {
+			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
+			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			s3Client.deleteObject(this.bucketName,filename);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		//save new file in S3bucket
+		saveAttachmentToS3Bucket(file, note);
+		
+		
+
+		//deleting entry from DB
+		Attachment attachmentToBeUpdated1 = this.entityManager.find(Attachment.class, id);
+	      attachmentToBeUpdated1.setFileName(attachment.getFileName());
+		  attachmentToBeUpdated1.setFileType(attachment.getFileType());
+		  flushAndClear();
+		  return attachmentToBeUpdated1;
 	}
 	
 	
@@ -154,7 +244,6 @@ public class AttachmentDAO {
 			fos.write(file.getBytes());
 			fos.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return convFile;
