@@ -64,13 +64,37 @@
    This api updates an existing note in the system authorized to the logged in user. <br>
    ```
    PUT /note/{NoteId}
-   ```  
+   ```
 
 5. **Delete Existing Note** <br>
    This api deletes an existing note from the system authorized to the logged in user. <br>
    ```
    DELETE /note/{NoteId}
    ```
+6. **Add new attachemnt to note** <br>
+   This api adds a new attachment to the note in the system. <br>
+   ```
+   POST /{NoteId}/attachments
+   ```
+
+7. **Retrieve all attachments from note** <br>
+   This api gets all the attachments to the note in the system. <br>
+   ```
+   GET /{NoteId}/attachments
+   ```
+
+8. **Update attachment** <br>
+   This api updates the attachment to the note in the system. <br>
+   ```
+   PUT /{NoteId}/attachments/{AttachmentId}
+   ```
+
+9. **Delete attachment** <br>
+   This api deleted the attachment to the note in the system. <br>
+   ```
+   DELETE /{NoteId}/attachments/{AttachmentId}
+   ```
+
 
 ## CI/CD
 
