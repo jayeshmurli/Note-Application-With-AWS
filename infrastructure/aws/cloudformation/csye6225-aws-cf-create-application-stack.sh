@@ -32,11 +32,7 @@ fi
 echo "Fetching latest AMI Image"
 ImageId=$(aws ec2 describe-images --owners self --filter "Name=name,Values=csye6225_??????????" --output json | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId')
 echo "Image ID : $ImageId "
-webserversgid=$(aws ec2 describe-security-groups --output text --filters Name=tag-key,Values=Name Name=tag-value,Values=${STACK_NAME}-Network-csye6225-ws-security-group --query SecurityGroups[].GroupId)
-dbserversgid=$(aws ec2 describe-security-groups --output text --filters Name=tag-key,Values=Name Name=tag-value,Values=${STACK_NAME}-Network-csye6225-db-security-group --query SecurityGroups[].GroupId)
-subnet1=$(aws ec2 describe-subnets --query "Subnets[?Tags[?Key=='Name']|[?Value=='subnet1']].SubnetId" --output text)
-subnet2=$(aws ec2 describe-subnets --query "Subnets[?Tags[?Key=='Name']|[?Value=='subnet2']].SubnetId" --output text)
-subnet3=$(aws ec2 describe-subnets --query "Subnets[?Tags[?Key=='Name']|[?Value=='subnet3']].SubnetId" --output text)
+
 
 echo "Creating stack..."
 STACK_ID=$( \
@@ -46,11 +42,6 @@ STACK_ID=$( \
   --parameters ParameterKey=NetworkStackName,ParameterValue=${STACK_NAME}-Network  \
   ParameterKey=ImageId,ParameterValue=$ImageId \
   ParameterKey=KeyName,ParameterValue=$KEY_NAME \
-  ParameterKey=WebServerSGID,ParameterValue=$webserversgid \
-  ParameterKey=DBServerSGID,ParameterValue=$dbserversgid \
-  ParameterKey=Subnet1,ParameterValue=$subnet1 \
-  ParameterKey=Subnet2,ParameterValue=$subnet2 \
-  ParameterKey=Subnet3,ParameterValue=$subnet3 \
   | jq -r .StackId \
 )
 
