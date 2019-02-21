@@ -136,7 +136,16 @@ public class AttachmentDAO {
 		}
 
 	}
-
+	@Transactional
+	public Attachment updateAttachment(String id, Attachment attachment) {
+		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
+	      attachmentToBeUpdated.setFileName(attachment.getFileName());
+		  attachmentToBeUpdated.setFileType(attachment.getFileType());
+		  flushAndClear();
+		  return attachmentToBeUpdated;
+	}
+	
+	
 	private File convert(MultipartFile file) {
 		File convFile = new File(file.getOriginalFilename());
 		try {
