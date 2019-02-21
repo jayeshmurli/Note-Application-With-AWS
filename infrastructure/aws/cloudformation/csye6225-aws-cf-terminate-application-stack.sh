@@ -8,10 +8,12 @@ fi
 
 
 echo "Checking if stack exists"
-var1=$(aws cloudformation describe-stacks --stack-name "$1" --query "Stacks[0].StackId" --output text 2>&1)
+var1=$(aws cloudformation describe-stacks --stack-name "$1-App" --query "Stacks[0].StackId" --output text 2>&1)
 
 if [ $? -eq 0 ]
     then
+	echo "Stack found with id $var1"
+        echo "Starting deletion of stack $var1"	
         id=$(aws cloudformation describe-stacks --stack-name $var1 --query "Stacks[*].StackId" --output text 2>&1)
         aws cloudformation delete-stack --stack-name $var1
         aws cloudformation wait stack-delete-complete --stack-name $var1
@@ -19,7 +21,7 @@ if [ $? -eq 0 ]
 
    if [ $? -eq 0 ]
         then
-            echo "Stack $1 successfully deleted!!!"
+            echo "Stack $1-App successfully deleted!!!"
    else
  	    echo "Failed Stack deletion"
  	    exit 1
