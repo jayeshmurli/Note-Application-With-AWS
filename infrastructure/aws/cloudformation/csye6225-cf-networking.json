@@ -147,10 +147,15 @@
       "Value" :  { "Ref" : "mySubnet1" },
       "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-SubnetID" }}
     },
-    "DBPublicSubnet" : {
+    "DBPublicSubnet1" : {
       "Description" : "The subnet ID to use for public DB servers",
       "Value" :  { "Ref" : "mySubnet2" },
-      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSubnetID" }}
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSubnetID1" }}
+    },
+    "DBPublicSubnet2" : {
+      "Description" : "The subnet ID to use for public DB servers",
+      "Value" :  { "Ref" : "mySubnet3" },
+      "Export" : { "Name" : {"Fn::Sub": "${AWS::StackName}-DBSubnetID2" }}
     },
     "WebServerSecurityGroup" : {
       "Description" : "The security group ID to use for public web servers",
