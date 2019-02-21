@@ -48,4 +48,15 @@ public class AttachmentController {
 		}
 		return this.attachmentService.getAttachmenttoNote(message, noteId);
 	}
+	
+	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.DELETE	)
+	public ResponseEntity<Object> deleteAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId) {
+		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		ApiResponse errorResponse;
+		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
+			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
+			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
+		}
+		return this.attachmentService.deleteAttachmentToNote(message, noteId , attachmentId);
+	}
 }
