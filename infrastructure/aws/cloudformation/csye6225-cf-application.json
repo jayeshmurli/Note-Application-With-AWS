@@ -71,7 +71,8 @@
                "MasterUsername" : "csye6225master" ,
                "MasterUserPassword" : "csye6225password",
 	       "PubliclyAccessible" : true,
-               "Tags" : [ { "Key" : "Name", "Value" : "My SQL Database" } ]
+	       "VPCSecurityGroups" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSecurityGroupID" } } ],
+               "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
            },
            "DeletionPolicy" : "Snapshot"
        }
