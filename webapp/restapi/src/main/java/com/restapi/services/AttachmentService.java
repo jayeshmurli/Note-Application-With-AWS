@@ -94,15 +94,7 @@ public class AttachmentService {
 				}else
 				{
 					//delete actual file from local/S3 bucket
-					boolean successfullyDeleted = this.attachmentDAO.deleteFromMemory(attachmentToBeDeleted);
-					if (successfullyDeleted)
-						this.attachmentDAO.deleteAttachment(attachmentId);
-					else
-					{
-						apiResponse = new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
-								"Resource could not be deleted");
-						return new ResponseEntity<Object>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-					}
+					this.attachmentDAO.deleteAttachment(attachmentId);
 				}
 				
 			}
@@ -118,7 +110,6 @@ public class AttachmentService {
 	public ResponseEntity<Object> updateAttachmentToNote(String username, String noteId , String attachmentId,MultipartFile file) 
 	{
 		ApiResponse apiResponse = null;
-		AttachmentJSON attachmentJSON;
 		try {
 			Note note = this.noteDAO.getNoteFromId(noteId);
 			if (note == null) {
@@ -131,24 +122,13 @@ public class AttachmentService {
 			} 
 			else 
 			{
-				Attachment attachmentToBeDeleted = this.attachmentDAO.getAttachmentFromId(attachmentId);
-				if (attachmentToBeDeleted == null) {
+				Attachment attachmentToBeUpdated = this.attachmentDAO.getAttachmentFromId(attachmentId);
+				if (attachmentToBeUpdated == null) {
 					apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Attachment not found", "Attachment not found");
 					return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 				}else
 				{
-					//delete actual file from local/S3 bucket
-					boolean successfullyDeleted = this.attachmentDAO.deleteFromMemory(attachmentToBeDeleted);
-					if (successfullyDeleted)
-					{	this.attachmentDAO.deleteAttachment(attachmentId);
-					attachmentJSON = new AttachmentJSON(this.attachmentDAO.saveAttachment(file, note));
-					}
-					else
-					{
-						apiResponse = new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
-								"Resource could not be deleted");
-						return new ResponseEntity<Object>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-					}
+					this.attachmentDAO.updateAttachment(attachmentId, attachmentToBeUpdated ,file, note);
 				}
 				
 			}
