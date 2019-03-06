@@ -22,6 +22,7 @@ jobs:
 
     steps:
       - checkout
+      - run: cd webapp/restapi
 
       # Download and cache dependencies
       - restore_cache:
