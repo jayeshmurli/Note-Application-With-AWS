@@ -1,4 +1,4 @@
-mvn package
+mvn clean install -DskipTests
 
 if [ -z "$1" ] 
   then

@@ -9,6 +9,7 @@ jobs:
       # specify the version you desire here
       - image: circleci/openjdk:8-jdk
     steps:
+      - checkout
       - run: |
           cd webapp/restapi
           ./startApplication.sh
