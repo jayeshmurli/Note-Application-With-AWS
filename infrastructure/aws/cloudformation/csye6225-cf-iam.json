@@ -52,7 +52,8 @@
                        ],
                        "Resource" : "*"
                    } ]
-               }
+               },
+	       "Users": ["circleci"]
            }	
        },
        "CodeDeployEC2S3Policy": {
@@ -69,7 +70,8 @@
 		       ],
 	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-iyerj.me*"
 		   } ]
-	       }
+	       },
+	       "Users": ["circleci"]
            }
        },	   
        "CircleCIUploadToS3Policy": {
@@ -85,7 +87,8 @@
 		       ],
 	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-iyerj.me/*"
 		   } ]
-	       }
+	       },
+	       "Users": ["circleci"]
            }
        },	   
        "CirlceCICodeDeployPolicy": {
@@ -127,7 +130,8 @@
 		           ]
    		       }
 		   ]
-	       }
+	       },
+	       "Users": ["circleci"]
            }
        },
        "CodeDeployEC2ServiceRole": {
@@ -160,6 +164,7 @@
                        "Action": [ "sts:AssumeRole" ]
                    } ]
 	       },
+	       "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
     	       "RoleName": "CodeDeployServiceRole"	       
            }       
        }       
