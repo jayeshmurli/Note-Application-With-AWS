@@ -109,7 +109,7 @@
 		               "codedeploy:GetApplicationRevision"
 		           ],
      			   "Resource": [
-			        "arn:aws:codedeploy:us-east-1:298906029222:csye-spring2019-webapp"
+			        "arn:aws:codedeploy:us-east-1:298906029222:csye6225-webapp"
       			   ]
     		       },
     	       	       {
@@ -172,5 +172,12 @@
     	       "RoleName": "CodeDeployServiceRole"	       
            }       
        }       
-   }
+   },
+   "Outputs" : {
+       "CodeDeployServiceRole" : {
+           "Description" : "Code Deploy Service Role",
+           "Value" :  {"Fn::GetAtt" : ["CodeDeployServiceRole", "Arn"] },
+           "Export" : { "Name" : "CodeDeployServiceRole" }
+       }
+   } 
 }   

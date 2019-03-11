@@ -172,7 +172,7 @@ public class AttachmentDAO {
 
 	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) {
 		String path = attachmentToBeDeleted.getFileName();
-
+		System.out.println(path);
 		try {
 			java.io.File fileToBeDeleted = new java.io.File((path));
 			if (fileToBeDeleted.delete()) {
