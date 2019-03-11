@@ -4,6 +4,10 @@
         "IAMStackName": {
             "Type": "String",
             "Description" : "Please enter string for iam stack name"
+         } ,
+	"BucketName": {
+            "Type": "String",
+            "Description" : "Please enter string for code deploy bucket name"
          }
    },
    "Resources" : {
@@ -68,7 +72,7 @@
                            "s3:Get*",
 			   "s3:List*"
 		       ],
-	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-iyerj.me*"
+	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-${BucketName}.me*" 
 		   } ]
 	       },
 	       "Users": ["circleci"]
@@ -85,7 +89,7 @@
                        "Action"   : [
                            "s3:PutObject"
 		       ],
-	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-iyerj.me/*"
+	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-${BucketName}.me/*"
 		   } ]
 	       },
 	       "Users": ["circleci"]
