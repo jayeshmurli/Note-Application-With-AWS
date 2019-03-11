@@ -21,6 +21,10 @@
                "InstanceType"   : "t2.micro",
                "ImageId"	: {"Ref" : "ImageId" },
 	       "KeyName"	: {"Ref" : "KeyName" },
+	       "Tags"		: {
+		       		      "Key": "Environment",
+		       		      "Value": "Cloud"
+	       			  },
 	       "NetworkInterfaces" : [{
                     "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}], 
                     "AssociatePublicIpAddress" : "true",
@@ -75,6 +79,35 @@
                "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
            },
            "DeletionPolicy" : "Snapshot"
+       },
+       "CodeDeployApplication": {
+           "Type": "AWS::CodeDeploy::Application",
+           "Properties": {
+               "ApplicationName": "csye6225-webapp",
+               "ComputePlatform": "Server"
+           }
+       },
+       "DeploymentGroup": {
+           "Type": "AWS::CodeDeploy::DeploymentGroup",
+           "Properties": {
+               "ApplicationName": {"Ref": "CodeDeployApplication"},
+               "DeploymentGroupName" : "csye6225-webapp-deployment",
+               "ServiceRoleArn": {"Fn::ImportValue" : "CodeDeployServiceRole"},
+               "DeploymentStyle": {
+                   "DeploymentType": "IN_PLACE",
+                   "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+               },
+               "Ec2TagFilters": [ {
+                   "Key": "Environment",
+                   "Type": "KEY_AND_VALUE",
+                   "Value": "Cloud"
+               } ],
+               "DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
+               "AutoRollbackConfiguration": {
+                   "Enabled" : true,
+                   "Events" : ["DEPLOYMENT_FAILURE"]
+               }
+           }
        }
    }  
 }   
