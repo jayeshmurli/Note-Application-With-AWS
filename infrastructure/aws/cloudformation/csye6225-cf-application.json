@@ -21,10 +21,10 @@
                "InstanceType"   : "t2.micro",
                "ImageId"	: {"Ref" : "ImageId" },
 	       "KeyName"	: {"Ref" : "KeyName" },
-	       "Tags"		: {
-		       		      "Key": "Environment",
-		       		      "Value": "Cloud"
-	       			  },
+	       "Tags"		: [ {
+		       		      "Key" : "Environment",
+		       		      "Value" : "Cloud"
+	       			  } ],
 	       "NetworkInterfaces" : [{
                     "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}], 
                     "AssociatePublicIpAddress" : "true",
