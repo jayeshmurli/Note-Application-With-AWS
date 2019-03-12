@@ -31,4 +31,4 @@ jobs:
       - run:
           name: Upload ZIP to S3 bucket
           command: |
-            aws s3 cp webapp/restapi/target/application.zip s3://code-deploy.csye6225-spring2019-dandekars.me/application.zip       
+            aws s3 cp webapp/restapi/target/application.zip s3://code-deploy.csye6225-spring2019-salvimi.me/application.zip       
