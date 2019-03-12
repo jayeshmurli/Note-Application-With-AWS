@@ -29,7 +29,8 @@ STACK_ID=$( \
   --stack-name ${STACK_NAME}-IAM \
   --template-body file://${TEMPLATE_NAME} \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameters ParameterKey=IAMStackName,ParameterValue=${STACK_NAME}-IAM ParameterKey=BucketName,ParameterValue=${BUCKET_NAME} \
+  --parameters ParameterKey=IAMStackName,ParameterValue=${STACK_NAME}-IAM \
+  		ParameterKey=BucketName,ParameterValue=$BUCKET_NAME \
   | jq -r .StackId \
 )
 
