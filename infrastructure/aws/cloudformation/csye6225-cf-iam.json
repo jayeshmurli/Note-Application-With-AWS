@@ -72,7 +72,7 @@
                            "s3:Get*",
 			   "s3:List*"
 		       ],
-	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-${BucketName}.me*" 
+	               "Resource" : {"Fn::Join" : [ "", [ "arn:aws:s3:::code-deploy.csye6225-spring2019-" , {"Ref" : "BucketName" }, ".me*"]]}
 		   } ]
 	       },
 	       "Users": ["circleci"]
@@ -89,7 +89,7 @@
                        "Action"   : [
                            "s3:PutObject"
 		       ],
-	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-${BucketName}.me/*"
+	               "Resource" : {"Fn::Join" : [ "", [ "arn:aws:s3:::code-deploy.csye6225-spring2019-" , {"Ref" : "BucketName" }, ".me*"]]} 
 		   } ]
 	       },
 	       "Users": ["circleci"]
