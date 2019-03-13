@@ -26,9 +26,16 @@ jobs:
       - run:
           name: Zip JAR File
           command: |
-            cd webapp/restapi/target
-            zip application.zip restapi.jar
+            mkdir package
+            mv webapp/restapi/startApplication.sh package/
+            mv webapp/restapi/target/restapi.jar package/
+            mv appspec.yml package/
+            cd package
+            zip application.zip *
             chmod 777 application.zip 
       - run:
           name: Upload ZIP to S3 bucket
-          command: aws s3 cp webapp/restapi/target/application.zip s3://code-deploy.csye6225-spring2019-$AWS_BUCKET_NAME.me
+          command: aws s3 cp package/application.zip s3://code-deploy.csye6225-spring2019-$AWS_BUCKET_NAME.me
+      - run:
+          name: Create Deployment
+          command: aws deploy create-deployment --application-name csye6225-webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name csye6225-webapp-deployment --s3-location bucket=code-deploy.csye6225-spring2019-$AWS_BUCKET_NAME.me,bundleType=zip,key=application.zip    

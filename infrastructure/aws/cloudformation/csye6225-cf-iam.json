@@ -117,8 +117,7 @@
 		       ],
 	               "Resource" : { "Fn::Sub" : "arn:aws:s3:::csye6225-spring2019-${BucketName}.me.csye6225.com/*"}
 		   } ]
-	       },
-	       "Users": ["circleci"]
+	       }
            }
        },	   
        "CirlceCICodeDeployPolicy": {
