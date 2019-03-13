@@ -113,12 +113,12 @@
                        "Effect"   : "Allow",
                        "Action"   : [
                            "s3:PutObject",
-			   "s3:Get*"
+			                "s3:Get*",
+                            "s3:DeleteObject"
 		       ],
 	               "Resource" : { "Fn::Sub" : "arn:aws:s3:::csye6225-spring2019-${BucketName}.me.csye6225.com/*"}
 		   } ]
-	       },
-	       "Users": ["circleci"]
+	       }
            }
        },	   
        "CirlceCICodeDeployPolicy": {
@@ -135,7 +135,7 @@
 		               "codedeploy:GetApplicationRevision"
 		           ],
      			   "Resource": [
-				{"Fn::Sub": "arn:aws:codedeploy:${Region}:${AccountId}:csye6225-webapp" }
+				{"Fn::Sub": "arn:aws:codedeploy:${Region}:${AccountId}:application:csye6225-webapp" }
       			   ]
     		       },
     	       	       {
