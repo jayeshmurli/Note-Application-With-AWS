@@ -103,6 +103,24 @@
 	       "Users": ["circleci"]
            }
        },	   
+       "EC2UploadToS3Policy": {
+           "Type" : "AWS::IAM::ManagedPolicy",
+           "Properties" : {
+               "ManagedPolicyName" : "EC2-Upload-To-S3",
+               "PolicyDocument" : {
+                   "Version" : "2012-10-17",
+                   "Statement": [ {
+                       "Effect"   : "Allow",
+                       "Action"   : [
+                           "s3:PutObject",
+			   "s3:Get*"
+		       ],
+	               "Resource" : { "Fn::Sub" : "arn:aws:s3:::csye6225-spring2019-${BucketName}.me.csye6225.com/*"}
+		   } ]
+	       },
+	       "Users": ["circleci"]
+           }
+       },	   
        "CirlceCICodeDeployPolicy": {
            "Type" : "AWS::IAM::ManagedPolicy",
            "Properties" : {
@@ -179,6 +197,13 @@
 	       "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"],
     	       "RoleName": "CodeDeployServiceRole"	       
            }       
+       },
+       "EC2InstanceProfile":{
+           "Type": "AWS::IAM::InstanceProfile",
+           "Properties": {
+               "Roles": [ {"Ref": "CodeDeployEC2ServiceRole"} , {"Ref" : "EC2UploadToS3Policy"}],
+               "InstanceProfileName": "EC2InstanceProfile"
+           }       
        }       
    },
    "Outputs" : 
@@ -191,6 +216,12 @@
 		{
       			"Name" : "CodeDeployServiceRole" 
 		}
-  	 } 
+  	 },
+	 "EC2InstanceProfile" : 
+	 {
+		 "Description" : "Instance Profile to be attached to EC2 Instance",
+		 "Value" : { "Ref" : "EC2InstanceProfile" },
+		 "Export" : { "Name" : "EC2InstanceProfile" }
+	 } 
    } 
 }   

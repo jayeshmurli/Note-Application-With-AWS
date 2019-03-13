@@ -13,11 +13,12 @@
 TEMPLATE_NAME=$1
 STACK_NAME=$2
 KEY_NAME=$3
+BUCKET_NAME=$4
 
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]
   then
     echo "Error! Argument Required"
-    echo "Usage - sh script.sh <TemplateFile> <Stack_Name> <Key_Name>" 
+    echo "Usage - sh script.sh <TemplateFile> <Stack_Name> <Key_Name> <Bucket_Name>" 
     exit 1
 fi
 
@@ -42,6 +43,7 @@ STACK_ID=$( \
   --parameters ParameterKey=NetworkStackName,ParameterValue=${STACK_NAME}-Network  \
   ParameterKey=ImageId,ParameterValue=$ImageId \
   ParameterKey=KeyName,ParameterValue=$KEY_NAME \
+  ParameterKey=BucketName,ParameterValue=$BUCKET_NAME \
   | jq -r .StackId \
 )
 
