@@ -28,7 +28,7 @@ jobs:
           command: |
             cd webapp/restapi/target
             zip application.zip restapi.jar
+            chmod 777 application.zip 
       - run:
           name: Upload ZIP to S3 bucket
-          command: |
-            aws s3 cp webapp/restapi/target/application.zip s3://code-deploy.csye6225-spring2019-dandekars.me/application.zip       
+          command: aws s3 cp webapp/restapi/target/application.zip s3://code-deploy.csye6225-spring2019-$AWS_BUCKET_NAME.me

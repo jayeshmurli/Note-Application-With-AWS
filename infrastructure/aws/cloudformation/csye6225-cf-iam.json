@@ -8,6 +8,14 @@
 	"BucketName": {
             "Type": "String",
             "Description" : "Please enter string for code deploy bucket name"
+         },
+	"AccountId": {
+            "Type": "String",
+            "Description" : "Account ID of the aws cli user"
+         },
+	"Region": {
+            "Type": "String",
+            "Description" : "Region of the aws cli user"
          }
    },
    "Resources" : {
@@ -72,7 +80,7 @@
                            "s3:Get*",
 			   "s3:List*"
 		       ],
-	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-${BucketName}.me*" 
+	               "Resource" : {"Fn::Join" : [ "", [ "arn:aws:s3:::code-deploy.csye6225-spring2019-" , {"Ref" : "BucketName" }, ".me/*"]]}
 		   } ]
 	       },
 	       "Users": ["circleci"]
@@ -89,7 +97,7 @@
                        "Action"   : [
                            "s3:PutObject"
 		       ],
-	               "Resource" : "arn:aws:s3:::code-deploy.csye6225-spring2019-${BucketName}.me/*"
+	               "Resource" : {"Fn::Join" : [ "", [ "arn:aws:s3:::code-deploy.csye6225-spring2019-" , {"Ref" : "BucketName" }, ".me/*"]]} 
 		   } ]
 	       },
 	       "Users": ["circleci"]
@@ -127,7 +135,7 @@
 		               "codedeploy:GetApplicationRevision"
 		           ],
      			   "Resource": [
-			        "arn:aws:codedeploy:us-east-1:298906029222:csye6225-webapp"
+				{"Fn::Sub": "arn:aws:codedeploy:${Region}:${AccountId}:csye6225-webapp" }
       			   ]
     		       },
     	       	       {
@@ -146,9 +154,9 @@
 		                "codedeploy:GetDeploymentConfig"
       			   ],
 		           "Resource": [
-		                "arn:aws:codedeploy:us-east-1:298906029222:deploymentconfig:CodeDeployDefault.OneAtATime",
-			        "arn:aws:codedeploy:us-east-1:298906029222:deploymentconfig:CodeDeployDefault.HalfAtATime",
-			        "arn:aws:codedeploy:us-east-1:298906029222:deploymentconfig:CodeDeployDefault.AllAtOnce"
+				{"Fn::Sub": "arn:aws:codedeploy:${Region}:${AccountId}:deploymentconfig:CodeDeployDefault.OneAtATime" },
+				{"Fn::Sub": "arn:aws:codedeploy:${Region}:${AccountId}:deploymentconfig:CodeDeployDefault.HalfAtATime" },
+				{"Fn::Sub": "arn:aws:codedeploy:${Region}:${AccountId}:deploymentconfig:CodeDeployDefault.AllAtOnce" }
 		           ]
    		       }
 		   ]
