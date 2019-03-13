@@ -177,7 +177,7 @@
                        "Action": [ "sts:AssumeRole" ]
                    } ]
 	       },	   
-	       "ManagedPolicyArns": [ { "Ref" : "CodeDeployEC2S3Policy" } ],
+	       "ManagedPolicyArns": [ { "Ref" : "CodeDeployEC2S3Policy" }, {"Ref" : "EC2UploadToS3Policy"} ],
     	       "RoleName": "CodeDeployEC2ServiceRole"	       
            }       
        },       
@@ -201,7 +201,7 @@
        "EC2InstanceProfile":{
            "Type": "AWS::IAM::InstanceProfile",
            "Properties": {
-               "Roles": [ {"Ref": "CodeDeployEC2ServiceRole"} , {"Ref" : "EC2UploadToS3Policy"}],
+               "Roles": [ {"Ref": "CodeDeployEC2ServiceRole"} ],
                "InstanceProfileName": "EC2InstanceProfile"
            }       
        }       
