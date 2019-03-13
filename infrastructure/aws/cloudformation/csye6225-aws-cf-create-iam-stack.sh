@@ -23,6 +23,14 @@ fi
 
 ###### REPLACE=$(sed -i 's/stackvariable/'${STACK_NAME}'/g' template.json)
 
+echo "Fetching Account ID from AWS CLI"
+ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
+echo "ACCOUNT_ID : $ACCOUNT_ID "
+
+echo "Fetching Region from AWS CLI"
+REGION=$(aws configure get region)
+echo "REGION : $REGION "
+
 echo "Creating stack... ${STACK_NAME}"
 STACK_ID=$( \
   aws cloudformation create-stack \
@@ -31,6 +39,8 @@ STACK_ID=$( \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=IAMStackName,ParameterValue=${STACK_NAME}-IAM \
   		ParameterKey=BucketName,ParameterValue=$BUCKET_NAME \
+		ParameterKey=AccountId,ParameterValue=$ACCOUNT_ID \
+		ParameterKey=Region,ParameterValue=$REGION \
   | jq -r .StackId \
 )
 
