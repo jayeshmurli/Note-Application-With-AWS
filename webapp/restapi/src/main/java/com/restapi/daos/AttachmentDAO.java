@@ -107,7 +107,6 @@ public class AttachmentDAO {
 			attachment = new Attachment(path, file.getContentType(), note);
 			this.entityManager.persist(attachment);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return attachment;
 	}
