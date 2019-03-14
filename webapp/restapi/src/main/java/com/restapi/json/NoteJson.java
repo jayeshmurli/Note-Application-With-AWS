@@ -1,8 +1,11 @@
 package com.restapi.json;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import com.restapi.model.Attachment;
 import com.restapi.model.Note;
 
 public class NoteJson {
@@ -11,6 +14,7 @@ public class NoteJson {
 	private String content;
 	private Date createdOn;
 	private Date lastUpdatedOn;
+	private List<AttachmentJSON> attachments; 
 //	private String createdById;
 
 	public NoteJson() {
@@ -23,6 +27,10 @@ public class NoteJson {
 		this.setContent(note.getContent());
 		this.createdOn = note.getCreatedOn();
 		this.lastUpdatedOn = note.getLastUpdatedOn();
+		this.attachments = new ArrayList<AttachmentJSON>();
+		for(Attachment attach : note.getAttachments())
+			attachments.add(new AttachmentJSON(attach));
+			
 //		this.createdById = note.getCreatedBy().getUsername();
 	}
 
@@ -74,4 +82,13 @@ public class NoteJson {
 		this.content = content;
 	}
 
+	public List<AttachmentJSON> getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(List<AttachmentJSON> attachments) {
+		this.attachments = attachments;
+	}
+
+	
 }
