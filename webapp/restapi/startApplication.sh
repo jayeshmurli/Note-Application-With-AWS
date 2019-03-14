@@ -1,3 +1,5 @@
+#! /bin/bash
+
 #tail /etc/profile -n 5 > /tmp/tempFile.sh
 #sudo chmod 777 /tmp/tempFile.sh
 #sudo fuser -k 80/tcp
