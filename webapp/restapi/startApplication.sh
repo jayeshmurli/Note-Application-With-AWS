@@ -6,4 +6,4 @@
 #cd /tmp/
 
 #./tempFile.sh > run.out 2> run.err &
-sudo java -jar restapi.jar --server.port=80 -Dspring.profiles.active=jayesh-dev
+sudo java -jar restapi.jar --server.port=80 -Dspring.profiles.active=jayesh-dev > run.out 2> run.err &
