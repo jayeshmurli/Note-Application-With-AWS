@@ -9,8 +9,11 @@ import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.restapi.model.Attachment;
 import com.restapi.model.Note;
 import com.restapi.services.NoteService;
@@ -21,21 +24,9 @@ public class NoteDAO {
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	@Autowired
-	AttachmentDAO attachmentDAO;
+	@Value("${cloud.bucketName}")
+	private String bucketName;
 
-	public Note getNote(String id) {
-		TypedQuery<Note> query = this.entityManager.createQuery("SELECT n from Note n where n.id = ?1",
-				Note.class);
-		query.setParameter(1, id);
-		return query.getSingleResult();
-	}
-	
-	@Transactional
-	public Note saveNote(Note note) {
-		this.entityManager.persist(note);
-		return note;
-	}
 	
 	@Transactional
 	public void deleteNote(String id) 
@@ -43,17 +34,52 @@ public class NoteDAO {
 		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
 		
 		System.out.println("Deleting notes attached to note");
-		List<Attachment> attachments = attachmentDAO.getAttachmentFromNote(noteToBeDeleted);
+		List<Attachment> attachments = getAttachmentFromNote(noteToBeDeleted);
 		
 		for (Attachment attachment : attachments)
 		{
-			attachmentDAO.deleteAttachment(attachment.getId());
+			deleteAttachmentFromS3Bucket(attachment.getId());
 		}
 		System.out.println("DONE deleting all attachments");
 		
 		System.out.println("Finally Deleting note");
 		this.entityManager.remove(noteToBeDeleted);
 		flushAndClear();
+	}
+	
+	public List<Attachment> getAttachmentFromNote(Note note) {
+		TypedQuery<Attachment> query = this.entityManager.createQuery("SELECT a from Attachment a where a.note = ?1",
+				Attachment.class);
+		query.setParameter(1, note);
+		return query.getResultList();
+	}
+	
+	@Transactional
+	public void deleteAttachmentFromS3Bucket(String id) {
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		String entirePath = attachmentToBeDeleted.getFileName();
+		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
+		try {
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+			s3Client.deleteObject(this.bucketName, filename);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		deleteFromDB(id);
+	}
+	
+	
+	@Transactional
+	public void deleteFromDB(String id) {
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		try {
+			this.entityManager.remove(attachmentToBeDeleted);
+			//flushAndClear();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	public Note getNoteFromId(String id) 
