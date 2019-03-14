@@ -27,6 +27,18 @@ public class NoteDAO {
 	@Value("${cloud.bucketName}")
 	private String bucketName;
 
+	public Note getNote(String id) {
+		TypedQuery<Note> query = this.entityManager.createQuery("SELECT n from Note n where n.id = ?1",
+				Note.class);
+		query.setParameter(1, id);
+		return query.getSingleResult();
+	}
+	
+	@Transactional
+	public Note saveNote(Note note) {
+		this.entityManager.persist(note);
+		return note;
+	}
 	
 	@Transactional
 	public void deleteNote(String id) 
