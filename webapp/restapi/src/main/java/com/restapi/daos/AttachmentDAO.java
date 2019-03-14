@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -93,12 +94,16 @@ public class AttachmentDAO {
 			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
 			filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			File tempFile = this.convert(file);
 			s3Client.putObject(new PutObjectRequest(this.bucketName, filename, tempFile));
-			String path = s3Client.getResourceUrl(this.bucketName, filename);
+			String path = s3Client.getUrl(this.bucketName, filename).toString();
+//			String path = s3Client
+//					.generatePresignedUrl(bucketName, filename, new Date(System.currentTimeMillis() + 5 * 60 * 1000))
+//					.toString();
 			tempFile.delete();
+			System.out.println(path);
+			System.out.println(this.bucketName);
 			attachment = new Attachment(path, file.getContentType(), note);
 			this.entityManager.persist(attachment);
 		} catch (Exception e) {
@@ -113,61 +118,55 @@ public class AttachmentDAO {
 	}
 
 	@Transactional
-	public void deleteAttachment( String id) {
+	public void deleteAttachment(String id) {
 		if (this.islocal) {
-			 this.deleteAttachmentFromLocal(id);
+			this.deleteAttachmentFromLocal(id);
 		} else {
-			 this.deleteAttachmentFromS3Bucket(id);
+			this.deleteAttachmentFromS3Bucket(id);
 		}
 
 	}
 
 	@Transactional
-	public void deleteAttachmentFromLocal(String id) 
-	{
+	public void deleteAttachmentFromLocal(String id) {
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		boolean successfullyDeleted = deleteFromMemory(attachmentToBeDeleted);
-		if (successfullyDeleted)
-		{
+		if (successfullyDeleted) {
 			this.entityManager.remove(attachmentToBeDeleted);
 			flushAndClear();
 		}
 	}
-	
+
 	private void flushAndClear() {
 		this.entityManager.flush();
 		this.entityManager.clear();
 	}
-	
+
 	@Transactional
-	public void deleteAttachmentFromS3Bucket(String id) 
-	{
+	public void deleteAttachmentFromS3Bucket(String id) {
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeDeleted.getFileName();
-		String filename = entirePath.substring(entirePath.lastIndexOf("/")+1);
+		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
 		try {
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
-			s3Client.deleteObject(this.bucketName,filename);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+			s3Client.deleteObject(this.bucketName, filename);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		deleteFromDB(id);
 	}
-	
+
 	@Transactional
-	public void deleteFromDB (String id)
-	{
+	public void deleteFromDB(String id) {
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
-		try{
+		try {
 			this.entityManager.remove(attachmentToBeDeleted);
 			flushAndClear();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) {
@@ -186,48 +185,42 @@ public class AttachmentDAO {
 		}
 
 	}
-	
-	
+
 	@Transactional
-	public Attachment updateAttachment(String id, Attachment attachment,MultipartFile file, Note note) 
-	{
+	public Attachment updateAttachment(String id, Attachment attachment, MultipartFile file, Note note) {
 		if (this.islocal) {
-			 return this.updateAttachmentFromLocal(id, attachment, file, note);
+			return this.updateAttachmentFromLocal(id, attachment, file, note);
 		} else {
-			 return this.updateAttachmentFromS3Bucket(id, attachment, file, note);
+			return this.updateAttachmentFromS3Bucket(id, attachment, file, note);
 		}
 	}
-	
-	@Transactional
-	public Attachment updateAttachmentFromLocal(String id, Attachment attachment,MultipartFile file, Note note) 
-	{
-		//delete actual file from local
-		boolean successfullyDeleted = deleteFromMemory(attachment);
-		
-		if (successfullyDeleted) 
-		{ 
-			saveAttachmentToLocalMemory(file, note); 
-		}
-		 
 
-		Attachment attachmentToBeUpdated1 =null;
-		if (successfullyDeleted)
-		{
-			//update entry from DB
+	@Transactional
+	public Attachment updateAttachmentFromLocal(String id, Attachment attachment, MultipartFile file, Note note) {
+		// delete actual file from local
+		boolean successfullyDeleted = deleteFromMemory(attachment);
+
+		if (successfullyDeleted) {
+			saveAttachmentToLocalMemory(file, note);
+		}
+
+		Attachment attachmentToBeUpdated1 = null;
+		if (successfullyDeleted) {
+			// update entry from DB
 			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
 			String filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
 			Path path = Paths.get(UPLOADED_FOLDER + filename);
 			attachment = new Attachment(path.toString(), file.getContentType(), note);
-			attachmentToBeUpdated1 =updateInDB(id, attachment);
-			
+			attachmentToBeUpdated1 = updateInDB(id, attachment);
+
 		}
 
 		return attachmentToBeUpdated1;
 	}
-	
+
 	private void saveAttachmentToLocalMemory(MultipartFile file, Note note) {
-		String filename ="";
+		String filename = "";
 		try {
 			Files.createDirectories(Paths.get(UPLOADED_FOLDER));
 			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
@@ -239,56 +232,53 @@ public class AttachmentDAO {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Transactional
-	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment,MultipartFile file, Note note) 
-	{
-		//delete actual file from S3bucket
+	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment, MultipartFile file, Note note) {
+		// delete actual file from S3bucket
 		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeUpdated.getFileName();
-		String filename = entirePath.substring(entirePath.lastIndexOf("/")+1);
+		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
 		try {
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
-			s3Client.deleteObject(this.bucketName,filename);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
+			s3Client.deleteObject(this.bucketName, filename);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		//save new file in S3bucket
+
+		// save new file in S3bucket
 		try {
 			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
 			filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			File tempFile = this.convert(file);
 			s3Client.putObject(new PutObjectRequest(this.bucketName, filename, tempFile));
-			String path = s3Client.getResourceUrl(this.bucketName, filename);
+			String path = s3Client.getUrl(this.bucketName, filename).toString();
+//			String path = s3Client
+//					.generatePresignedUrl(bucketName, filename, new Date(System.currentTimeMillis() + 5 * 60 * 1000))
+//					.toString();
 			tempFile.delete();
 			attachment = new Attachment(path, file.getContentType(), note);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 
-		//update entry from DB
-		Attachment attachmentToBeUpdated1 =updateInDB(id, attachment);
+		// update entry from DB
+		Attachment attachmentToBeUpdated1 = updateInDB(id, attachment);
 		return attachmentToBeUpdated1;
 	}
-	
+
 	@Transactional
-	public Attachment updateInDB (String id, Attachment attachment)
-	{
+	public Attachment updateInDB(String id, Attachment attachment) {
 		Attachment attachmentToBeUpdated1 = this.entityManager.find(Attachment.class, id);
-	      attachmentToBeUpdated1.setFileName(attachment.getFileName());
-		  attachmentToBeUpdated1.setFileType(attachment.getFileType());
-		  flushAndClear();
-		  return attachmentToBeUpdated1;
-		
+		attachmentToBeUpdated1.setFileName(attachment.getFileName());
+		attachmentToBeUpdated1.setFileType(attachment.getFileType());
+		flushAndClear();
+		return attachmentToBeUpdated1;
+
 	}
-	
-	
+
 	private File convert(MultipartFile file) {
 		File convFile = new File(file.getOriginalFilename());
 		try {
