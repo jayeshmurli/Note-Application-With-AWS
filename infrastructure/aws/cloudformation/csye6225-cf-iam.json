@@ -82,8 +82,7 @@
 		       ],
 	               "Resource" : {"Fn::Join" : [ "", [ "arn:aws:s3:::code-deploy.csye6225-spring2019-" , {"Ref" : "BucketName" }, ".me/*"]]}
 		   } ]
-	       },
-	       "Users": ["circleci"]
+	       }
            }
        },	   
        "CircleCIUploadToS3Policy": {
