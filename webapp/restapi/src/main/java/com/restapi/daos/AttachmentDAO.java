@@ -94,13 +94,13 @@ public class AttachmentDAO {
 			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
 			filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
 			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
-			System.out.println("REACHED!!!!!!!!!!!!");
 			File tempFile = this.convert(file);
 			s3Client.putObject(new PutObjectRequest(this.bucketName, filename, tempFile));
-//			String path = s3Client.getResourceUrl(this.bucketName, filename);
-			String path = "SHubhankar";
+			String path = s3Client.getUrl(this.bucketName, filename).toString();
+//			String path = s3Client
+//					.generatePresignedUrl(bucketName, filename, new Date(System.currentTimeMillis() + 5 * 60 * 1000))
+//					.toString();
 			tempFile.delete();
 			System.out.println(path);
 			System.out.println(this.bucketName);
@@ -147,8 +147,7 @@ public class AttachmentDAO {
 		String entirePath = attachmentToBeDeleted.getFileName();
 		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
 		try {
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			s3Client.deleteObject(this.bucketName, filename);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -240,8 +239,7 @@ public class AttachmentDAO {
 		String entirePath = attachmentToBeUpdated.getFileName();
 		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
 		try {
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			s3Client.deleteObject(this.bucketName, filename);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -252,11 +250,13 @@ public class AttachmentDAO {
 			String fileNameWithOutExt = FilenameUtils.removeExtension(file.getOriginalFilename());
 			filename = fileNameWithOutExt + "_" + new Date().getTime() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
-			AWSCredentials credentials = new ProfileCredentialsProvider().getCredentials();
-			AmazonS3Client s3Client = new AmazonS3Client(credentials);
+			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			File tempFile = this.convert(file);
 			s3Client.putObject(new PutObjectRequest(this.bucketName, filename, tempFile));
-			String path = s3Client.getResourceUrl(this.bucketName, filename);
+			String path = s3Client.getUrl(this.bucketName, filename).toString();
+//			String path = s3Client
+//					.generatePresignedUrl(bucketName, filename, new Date(System.currentTimeMillis() + 5 * 60 * 1000))
+//					.toString();
 			tempFile.delete();
 			attachment = new Attachment(path, file.getContentType(), note);
 		} catch (Exception e) {
