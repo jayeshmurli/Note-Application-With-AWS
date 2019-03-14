@@ -12,6 +12,10 @@
         "KeyName": {
             "Type": "String",
             "Description" : "Please enter string for Key Name"
+         },
+        "BucketName": {
+            "Type": "String",
+            "Description" : "Please enter string for Bucket Name"
          }
    },
    "Resources" : {
@@ -21,13 +25,34 @@
                "InstanceType"   : "t2.micro",
                "ImageId"	: {"Ref" : "ImageId" },
 	       "KeyName"	: {"Ref" : "KeyName" },
+	       "Tags"		: [ {
+		       		      "Key" : "Environment",
+		       		      "Value" : "Cloud"
+	       			  } ],
 	       "NetworkInterfaces" : [{
                     "GroupSet"                 : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}], 
                     "AssociatePublicIpAddress" : "true",
 		    "DeviceIndex"	       : "0",
                     "DeleteOnTermination"      : "true",
                     "SubnetId"                 : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" } } 
-               }]
+               }],	     
+	       "IamInstanceProfile" : { "Fn::ImportValue" : "EC2InstanceProfile" },
+	       "UserData":{
+	           "Fn::Base64":{
+                       "Fn::Join":[
+                           "",
+			   [
+			       "#!/bin/bash \n",
+			       "sudo service codedeploy-agent status \n",
+			       "echo export DB_HOST=",{"Fn::GetAtt": ["MariaDBInstance","Endpoint.Address"]}, " >> /etc/profile \n",
+			       "echo export DB_PORT=",{"Fn::GetAtt": ["MariaDBInstance","Endpoint.Port"]}," >> /etc/profile \n",
+			       "echo export DB_USERNAME='csye6225master' >> /etc/profile \n",
+			       "echo export DB_PASSWORD='csye6225password' >> /etc/profile \n",
+		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n"	       
+			   ]
+		        ]
+	           }		
+	       }
            }
        },
        "DynamoDBInstance" : {
@@ -75,6 +100,35 @@
                "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
            },
            "DeletionPolicy" : "Snapshot"
+       },
+       "CodeDeployApplication": {
+           "Type": "AWS::CodeDeploy::Application",
+           "Properties": {
+               "ApplicationName": "csye6225-webapp",
+               "ComputePlatform": "Server"
+           }
+       },
+       "DeploymentGroup": {
+           "Type": "AWS::CodeDeploy::DeploymentGroup",
+           "Properties": {
+               "ApplicationName": {"Ref": "CodeDeployApplication"},
+               "DeploymentGroupName" : "csye6225-webapp-deployment",
+               "ServiceRoleArn": {"Fn::ImportValue" : "CodeDeployServiceRole"},
+               "DeploymentStyle": {
+                   "DeploymentType": "IN_PLACE",
+                   "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+               },
+               "Ec2TagFilters": [ {
+                   "Key": "Environment",
+                   "Type": "KEY_AND_VALUE",
+                   "Value": "Cloud"
+               } ],
+               "DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
+               "AutoRollbackConfiguration": {
+                   "Enabled" : true,
+                   "Events" : ["DEPLOYMENT_FAILURE"]
+               }
+           }
        }
    }  
 }   
