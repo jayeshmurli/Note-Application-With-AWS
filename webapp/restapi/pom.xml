@@ -15,9 +15,25 @@
 					<executable>true</executable>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Xmx1024m -Xms1024m -XX:MaxPermSize=512m -Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+					<reuseForks>true</reuseForks>
+					<useSystemClassLoader>false</useSystemClassLoader>
+				</configuration>
+				<version>2.20.1</version>
+        	</plugin>
 		</plugins>
 		<finalName>restapi</finalName>
 	</build>
+	<repositories>
+		<repository>
+            <id>jboss-repo</id>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+  	</repositories>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
