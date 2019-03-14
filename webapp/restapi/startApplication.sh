@@ -1,4 +1,7 @@
-tail /etc/profile -n 5 > /tmp/tempFile.sh
+#! /bin/bash
+
+echo "#! /bin/bash" > /tmp/tempFile.sh
+echo "source /etc/profile" >> /tmp/tempFile.sh
 sudo chmod 777 /tmp/tempFile.sh
 sudo fuser -k 80/tcp
 echo "cd /var" >> /tmp/tempFile.sh
