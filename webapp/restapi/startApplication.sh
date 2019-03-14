@@ -8,6 +8,7 @@
 #cd /tmp/
 
 #./tempFile.sh > run.out 2> run.err &
+sudo fuser -k 80/tcp
 source /etc/profile
 cd /var
 java -jar -Dspring.profiles.active=jayesh-dev restapi.jar --server.port=80 > /tmp/run.out 2> /tmp/run.err &
