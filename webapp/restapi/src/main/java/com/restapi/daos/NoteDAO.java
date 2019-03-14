@@ -26,6 +26,9 @@ public class NoteDAO {
 	
 	@Value("${cloud.bucketName}")
 	private String bucketName;
+	
+	@Value("${cloud.islocal}")
+	private boolean islocal;
 
 	public Note getNote(String id) {
 		TypedQuery<Note> query = this.entityManager.createQuery("SELECT n from Note n where n.id = ?1",
@@ -50,7 +53,7 @@ public class NoteDAO {
 		
 		for (Attachment attachment : attachments)
 		{
-			deleteAttachmentFromS3Bucket(attachment.getId());
+			deleteAttachment(attachment.getId());
 		}
 		System.out.println("DONE deleting all attachments");
 		
@@ -64,6 +67,43 @@ public class NoteDAO {
 				Attachment.class);
 		query.setParameter(1, note);
 		return query.getResultList();
+	}
+	
+	@Transactional
+	public void deleteAttachment(String id) {
+		if (this.islocal) {
+			this.deleteAttachmentFromLocal(id);
+		} else {
+			this.deleteAttachmentFromS3Bucket(id);
+		}
+
+	}
+
+	@Transactional
+	public void deleteAttachmentFromLocal(String id) {
+		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
+		boolean successfullyDeleted = deleteFromMemory(attachmentToBeDeleted);
+		if (successfullyDeleted) {
+			this.entityManager.remove(attachmentToBeDeleted);
+			//flushAndClear();
+		}
+	}
+	
+	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) {
+		String path = attachmentToBeDeleted.getFileName();
+		System.out.println(path);
+		try {
+			java.io.File fileToBeDeleted = new java.io.File((path));
+			if (fileToBeDeleted.delete()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
 	}
 	
 	@Transactional
