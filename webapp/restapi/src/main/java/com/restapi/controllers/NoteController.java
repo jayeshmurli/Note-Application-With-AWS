@@ -23,7 +23,7 @@ public class NoteController {
 	@Autowired
 	NoteService noteService;
 
-	@RequestMapping(value = "/note", method = RequestMethod.POST)
+	@RequestMapping(value = "/note-jayesh", method = RequestMethod.POST)
 	public ResponseEntity<Object> addNote(@RequestBody Note note) {
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
