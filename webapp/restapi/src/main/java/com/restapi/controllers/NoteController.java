@@ -23,7 +23,7 @@ public class NoteController {
 	@Autowired
 	NoteService noteService;
 
-	@RequestMapping(value = "/mitali", method = RequestMethod.POST)
+	@RequestMapping(value = "/note", method = RequestMethod.POST)
 	public ResponseEntity<Object> addNote(@RequestBody Note note) {
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -42,7 +42,7 @@ public class NoteController {
 		return this.noteService.addNewNote(message, note);
 	}
 	
-	@RequestMapping(value = "/mitali", method = RequestMethod.GET)
+	@RequestMapping(value = "/note", method = RequestMethod.GET)
 	public ResponseEntity<Object> getNote(){
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
@@ -55,7 +55,7 @@ public class NoteController {
 		return this.noteService.getNotes(message);
 	}
 	
-	@RequestMapping(value = "/mitali/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id){
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
@@ -68,7 +68,7 @@ public class NoteController {
 		return this.noteService.getNoteById(message, id);
 	}
 	
-	@RequestMapping(value = "/mitali/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/note/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Object> deleteNote(@PathVariable("id") @NotNull String id) 
 	{
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -81,7 +81,7 @@ public class NoteController {
 	}
 
 
-    @RequestMapping(value = "/mitali/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") @NotNull String id)
     {
 	   String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
