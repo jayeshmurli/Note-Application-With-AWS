@@ -37,7 +37,8 @@ public class AttachmentController {
 
 	@RequestMapping(value = "/note/{noteId}/attachments", method = RequestMethod.POST)
 	public ResponseEntity<Object> addAttachmentToNote(@PathVariable @NotNull String noteId,
-			@RequestParam("file") MultipartFile file) {
+			@RequestParam("file") MultipartFile file) 
+	{
 		logger.info("Creating attachments for note with id:" +noteId);
 		statMetric.increementStat("POST /note/{noteId}/attachments");
 		
@@ -52,7 +53,8 @@ public class AttachmentController {
 	}
 	
 	@RequestMapping(value = "/note/{noteId}/attachments", method = RequestMethod.GET	)
-	public ResponseEntity<Object> getAttachmentToNote(@PathVariable @NotNull String noteId) {
+	public ResponseEntity<Object> getAttachmentToNote(@PathVariable @NotNull String noteId) 
+	{
 		logger.info("Getting attachments of note with id:" +noteId);
 		statMetric.increementStat("GET /note/{noteId}/attachments");
 		
@@ -68,6 +70,7 @@ public class AttachmentController {
 	
 	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.DELETE	)
 	public ResponseEntity<Object> deleteAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId) {
+		
 		logger.info("Deleting attachments of note with id:" +noteId);
 		statMetric.increementStat("DELETE /note/{noteId}/attachments/{attachmentId}");
 		
@@ -83,6 +86,7 @@ public class AttachmentController {
 	
 	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.PUT	)
 	public ResponseEntity<Object> updateAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId, @RequestParam("file") MultipartFile file) {
+		
 		logger.info("Updating attachments of note with id:" +noteId);
 		statMetric.increementStat("PUT /note/{noteId}/attachments/{attachmentId}");
 		

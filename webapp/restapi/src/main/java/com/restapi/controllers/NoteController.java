@@ -32,7 +32,8 @@ public class NoteController {
 	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 	
 	@RequestMapping(value = "/note", method = RequestMethod.POST)
-	public ResponseEntity<Object> addNote(@RequestBody Note note) {
+	public ResponseEntity<Object> addNote(@RequestBody Note note) 
+	{
 		
 		statMetric.increementStat("POST /note");
 		
@@ -73,7 +74,8 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id){
+	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id)
+	{
 		logger.info("Getting note with id:" + id);
 		statMetric.increementStat("GET /note/{noteId}");
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

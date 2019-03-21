@@ -31,6 +31,7 @@ public class RegisterUserController {
 
 	@RequestMapping(value = "/user/register", method = RequestMethod.POST)
 	public ResponseEntity<Object> registerUser(@Valid @RequestBody  Credentials credentials) {
+		
 		logger.info("Registering New user");
 		statMetric.increementStat("POST /user/register");
 		
