@@ -35,23 +35,23 @@ public class HomePageController {
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse apiResponse;
 		if (message != null && message.contentEquals("User not logged in")) {
-			logger.info("The user is not logged in");
+			logger.error("The user is not logged in");
 			apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "You are unauthorized to access the requested resource.", "User not logged in");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
 		} else if (message != null && message.contentEquals("Username not entered")) {
-			logger.info("The username is not entered");
+			logger.error("The username is not entered");
 			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Username not entered");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.FORBIDDEN);
 		} else if (message != null && message.contentEquals("Password not entered")) {
-			logger.info("The password is not entered");
+			logger.error("The password is not entered");
 			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Password not entered");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.FORBIDDEN);
 		} else if (message != null && message.contentEquals("Username does not exist")) {
-			logger.info("The username does not exist");
+			logger.error("The username does not exist");
 			apiResponse = new ApiResponse(HttpStatus.FORBIDDEN, "You are not authorized to access the requested resource.", "Username does not exist");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.FORBIDDEN);
 		} else if (message != null && message.contentEquals("Invalid Credentials")) {
-			logger.info("The user has entered invalid credentials");
+			logger.error("The user has entered invalid credentials");
 			apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "You are unauthorized to access the requested resource.", "Invalid credentials");
 			return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
 		} else {
