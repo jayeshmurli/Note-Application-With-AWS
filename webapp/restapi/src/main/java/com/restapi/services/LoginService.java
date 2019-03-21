@@ -1,8 +1,11 @@
 package com.restapi.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.restapi.daos.AttachmentDAO;
 import com.restapi.daos.UserDAO;
 import com.restapi.util.BCryptUtil;
 
@@ -10,11 +13,15 @@ import com.restapi.util.BCryptUtil;
 public class LoginService {
 	@Autowired
 	private BCryptUtil bCrptUtil;
+	
+	private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
 
 	@Autowired
 	private UserDAO userDAO;
 	
-	public boolean checkUser(String userName, String password) {
+	public boolean checkUser(String userName, String password) 
+	{
+		logger.info("Checking user");
 		// System.out.println("in check user::"+password);
 		String hashedPwdFromDB = this.userDAO.getStoredPasswordFromUser(userName); // get stored hash from username from
 																					// MYSQL
@@ -29,7 +36,9 @@ public class LoginService {
 
 	}
 
-	public boolean checkIfUserExists(String userName) {
+	public boolean checkIfUserExists(String userName) 
+	{
+		logger.info("Checking if user exists");
 		int count = this.userDAO.checkIfUserExists(userName);
 		if (count > 0)
 			return true;

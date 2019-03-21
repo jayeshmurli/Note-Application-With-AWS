@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restapi.metrics.StatMetric;
 import com.restapi.model.Note;
 import com.restapi.response.ApiResponse;
 import com.restapi.services.NoteService;
@@ -23,8 +24,12 @@ public class NoteController {
 	@Autowired
 	NoteService noteService;
 
+	@Autowired
+	StatMetric statMetric;
+	
 	@RequestMapping(value = "/note", method = RequestMethod.POST)
 	public ResponseEntity<Object> addNote(@RequestBody Note note) {
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
 		if (message.equals("Username does not exist") || message.equals("Invalid Credentials") || message.equals("Username not entered") || message.equals("Password not entered")) {
@@ -44,6 +49,8 @@ public class NoteController {
 	
 	@RequestMapping(value = "/note", method = RequestMethod.GET)
 	public ResponseEntity<Object> getNote(){
+		statMetric.increementStat("GET /note");
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
