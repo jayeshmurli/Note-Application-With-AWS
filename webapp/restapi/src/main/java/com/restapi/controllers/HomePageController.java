@@ -2,6 +2,9 @@ package com.restapi.controllers;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,14 +13,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restapi.metrics.StatMetric;
 import com.restapi.response.ApiResponse;
 
 @RestController
 public class HomePageController {
-
+	
+	
+	private static final Logger logger = LoggerFactory.getLogger(HomePageController.class);
+	
+	@Autowired
+	StatMetric statMetric;
+	
 	@RequestMapping(value = "/", method = { RequestMethod.GET })
 	public ResponseEntity<Object> showDate(/* @RequestHeader("Authorization") String bearerToken */) {
 
+		logger.info("Get call for Home Page");
+		statMetric.increementStat("GET /");
+		
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse apiResponse;
 		if (message != null && message.contentEquals("User not logged in")) {
