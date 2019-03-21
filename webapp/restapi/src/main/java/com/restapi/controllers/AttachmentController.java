@@ -39,11 +39,13 @@ public class AttachmentController {
 	public ResponseEntity<Object> addAttachmentToNote(@PathVariable @NotNull String noteId,
 			@RequestParam("file") MultipartFile file) 
 	{
-		statMetric.increementStat("POST /note/{noteId}/attachments");
 		logger.info("Creating attachments for note with id:" +noteId);
+		statMetric.increementStat("POST /note/{noteId}/attachments");
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
 		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
+			logger.error("Inavlid credentials provided for Add Note Attachment");
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -53,11 +55,13 @@ public class AttachmentController {
 	@RequestMapping(value = "/note/{noteId}/attachments", method = RequestMethod.GET	)
 	public ResponseEntity<Object> getAttachmentToNote(@PathVariable @NotNull String noteId) 
 	{
-		statMetric.increementStat("GET /note/{noteId}/attachments");
 		logger.info("Getting attachments of note with id:" +noteId);
+		statMetric.increementStat("GET /note/{noteId}/attachments");
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
 		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
+			logger.error("Inavlid credentials provided for GET Note Attachment");
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -67,11 +71,13 @@ public class AttachmentController {
 	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.DELETE	)
 	public ResponseEntity<Object> deleteAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId) {
 		
-		statMetric.increementStat("DELETE /note/{noteId}/attachments/{idAttachments}");
 		logger.info("Deleting attachments of note with id:" +noteId);
+		statMetric.increementStat("DELETE /note/{noteId}/attachments/{attachmentId}");
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
 		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
+			logger.error("Inavlid credentials provided for Delete Note Attachment");
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
@@ -81,11 +87,13 @@ public class AttachmentController {
 	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.PUT	)
 	public ResponseEntity<Object> updateAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId, @RequestParam("file") MultipartFile file) {
 		
-		statMetric.increementStat("PUT /note/{noteId}/attachments/{idAttachments}");
 		logger.info("Updating attachments of note with id:" +noteId);
+		statMetric.increementStat("PUT /note/{noteId}/attachments/{attachmentId}");
+		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
 		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
+			logger.error("Inavlid credentials provided for Update Note Attachment");
 			errorResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, message, message);
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}

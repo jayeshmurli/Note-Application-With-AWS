@@ -36,7 +36,7 @@ public class NoteDAO {
 
 	public Note getNote(String id) 
 	{
-		logger.info("Getting note from ID");
+		logger.info("Getting note from ID : " + id);
 		TypedQuery<Note> query = this.entityManager.createQuery("SELECT n from Note n where n.id = ?1",
 				Note.class);
 		query.setParameter(1, id);
@@ -46,7 +46,7 @@ public class NoteDAO {
 	@Transactional
 	public Note saveNote(Note note) 
 	{
-		logger.info("Saving note");
+		logger.info("Saving note into Database ");
 		this.entityManager.persist(note);
 		return note;
 	}
@@ -54,7 +54,7 @@ public class NoteDAO {
 	@Transactional
 	public void deleteNote(String id) 
 	{
-		logger.info("Deleting note");
+		logger.info("Deleting note from Database");
 		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
 		
 		//System.out.println("Deleting notes attached to note");
@@ -73,7 +73,7 @@ public class NoteDAO {
 	
 	public List<Attachment> getAttachmentFromNote(Note note) 
 	{
-		logger.info("Getting attachment from note");
+		logger.info("Getting list of attachment from note");
 		TypedQuery<Attachment> query = this.entityManager.createQuery("SELECT a from Attachment a where a.note = ?1",
 				Attachment.class);
 		query.setParameter(1, note);
@@ -83,8 +83,10 @@ public class NoteDAO {
 	@Transactional
 	public void deleteAttachment(String id) {
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			this.deleteAttachmentFromLocal(id);
 		} else {
+			logger.info("Application running on cloud environment");
 			this.deleteAttachmentFromS3Bucket(id);
 		}
 
@@ -93,7 +95,7 @@ public class NoteDAO {
 	@Transactional
 	public void deleteAttachmentFromLocal(String id) 
 	{
-		logger.info("Deleting attachment from local");
+		logger.debug("Deleting attachment from local");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		boolean successfullyDeleted = deleteFromMemory(attachmentToBeDeleted);
 		if (successfullyDeleted) {
@@ -104,7 +106,7 @@ public class NoteDAO {
 	
 	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) 
 	{
-		logger.info("Deleting attachment from memory");
+		logger.debug("Deleting attachment from memory");
 		String path = attachmentToBeDeleted.getFileName();
 		System.out.println(path);
 		try {
@@ -125,7 +127,7 @@ public class NoteDAO {
 	@Transactional
 	public void deleteAttachmentFromS3Bucket(String id) 
 	{
-		logger.info("Deleting attachment from S3 bucket");
+		logger.debug("Deleting attachment from S3 bucket");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeDeleted.getFileName();
 		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
@@ -144,7 +146,7 @@ public class NoteDAO {
 	@Transactional
 	public void deleteFromDB(String id) 
 	{
-		logger.info("Deleting from DB");
+		logger.debug("Deleting from DB");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		try {
 			this.entityManager.remove(attachmentToBeDeleted);
@@ -158,7 +160,7 @@ public class NoteDAO {
 	
 	public Note getNoteFromId(String id) 
 	{
-		logger.info("Getting note from ID");
+		logger.info("Getting note from ID : " + id);
 		Note noteToBeDeleted = this.entityManager.find(Note.class, id);
 		return noteToBeDeleted;
 	}
@@ -171,7 +173,7 @@ public class NoteDAO {
 	@Transactional
 	public Note updateNote(Note note,String id)
 	{
-		logger.info("Updating note");
+		logger.info("Updating note using new note object");
 		  Note noteToBeUpdated = this.entityManager.find(Note.class, id);
 		  //Write code to update the note object here and then merge changes
 		  noteToBeUpdated.setTitle(note.getTitle());

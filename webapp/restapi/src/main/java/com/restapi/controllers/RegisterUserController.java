@@ -23,7 +23,7 @@ public class RegisterUserController {
 
 	@Autowired
 	private RegisterService registerService;
-	
+
 	@Autowired
 	StatMetric statMetric;
 	
@@ -32,8 +32,9 @@ public class RegisterUserController {
 	@RequestMapping(value = "/user/register", method = RequestMethod.POST)
 	public ResponseEntity<Object> registerUser(@Valid @RequestBody  Credentials credentials) {
 		
-		logger.info("Registering user");
+		logger.info("Registering New user");
 		statMetric.increementStat("POST /user/register");
+		
 		return this.registerService.registerUser(credentials);
 	}
 }

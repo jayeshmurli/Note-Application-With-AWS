@@ -21,7 +21,7 @@ public class LoginService {
 	
 	public boolean checkUser(String userName, String password) 
 	{
-		logger.info("Checking user");
+		logger.info("Checking user credentials provided in request");
 		// System.out.println("in check user::"+password);
 		String hashedPwdFromDB = this.userDAO.getStoredPasswordFromUser(userName); // get stored hash from username from
 																					// MYSQL
@@ -38,7 +38,7 @@ public class LoginService {
 
 	public boolean checkIfUserExists(String userName) 
 	{
-		logger.info("Checking if user exists");
+		logger.info("Checking if user exists already exists in database");
 		int count = this.userDAO.checkIfUserExists(userName);
 		if (count > 0)
 			return true;

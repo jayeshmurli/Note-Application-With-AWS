@@ -24,13 +24,13 @@ public class UserDAO {
 	@Transactional
 	public User saveUser(User user) 
 	{
-		logger.info("Saving user");
+		logger.info("Saving user object to database");
 		return this.entityManager.merge(user);
 	}
 
 	public User getUser(String username) 
 	{
-		logger.info("Getting user");
+		logger.info("Getting user data from database for user ");
 		TypedQuery<User> query = this.entityManager.createQuery("SELECT c from User c where c.username = ?1",
 				User.class);
 		query.setParameter(1, username);
