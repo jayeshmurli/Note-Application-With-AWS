@@ -28,7 +28,7 @@ public class HomePageController {
 	@RequestMapping(value = "/", method = { RequestMethod.GET })
 	public ResponseEntity<Object> showDate(/* @RequestHeader("Authorization") String bearerToken */) {
 
-		logger.info("Get call for Home Page");
+		//logger.info("Get call for Home Page");
 		statMetric.increementStat("GET /");
 		
 		

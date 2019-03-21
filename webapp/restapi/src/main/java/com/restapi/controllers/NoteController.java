@@ -32,7 +32,9 @@ public class NoteController {
 	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 	
 	@RequestMapping(value = "/note", method = RequestMethod.POST)
-	public ResponseEntity<Object> addNote(@RequestBody Note note) {
+	public ResponseEntity<Object> addNote(@RequestBody Note note) 
+	{
+		statMetric.increementStat("POST /note");
 		
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -69,7 +71,9 @@ public class NoteController {
 	}
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id){
+	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id)
+	{
+		statMetric.increementStat("GET /note/{id}");
 		logger.info("Getting note with id:" + id);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
@@ -85,6 +89,7 @@ public class NoteController {
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Object> deleteNote(@PathVariable("id") @NotNull String id) 
 	{
+		statMetric.increementStat("DELETE /note/{id}");
 		logger.info("Deleting note with id:" + id);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -99,6 +104,7 @@ public class NoteController {
     @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") @NotNull String id)
     {
+    	statMetric.increementStat("PUT /note/{id}");
     	logger.info("Updating note with id:" + id);
 	   String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	   ApiResponse errorResponse;

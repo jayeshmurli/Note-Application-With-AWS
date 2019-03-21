@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.restapi.daos.NoteDAO;
+import com.restapi.metrics.StatMetric;
 import com.restapi.model.Note;
 import com.restapi.response.ApiResponse;
 import com.restapi.services.AttachmentService;
@@ -29,11 +30,16 @@ public class AttachmentController {
 	@Autowired
 	AttachmentService attachmentService;
 	
+	@Autowired
+	StatMetric statMetric;
+	
 	private static final Logger logger = LoggerFactory.getLogger(AttachmentController.class);
 
 	@RequestMapping(value = "/note/{noteId}/attachments", method = RequestMethod.POST)
 	public ResponseEntity<Object> addAttachmentToNote(@PathVariable @NotNull String noteId,
-			@RequestParam("file") MultipartFile file) {
+			@RequestParam("file") MultipartFile file) 
+	{
+		statMetric.increementStat("POST /note/{noteId}/attachments");
 		logger.info("Creating attachments for note with id:" +noteId);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -45,7 +51,9 @@ public class AttachmentController {
 	}
 	
 	@RequestMapping(value = "/note/{noteId}/attachments", method = RequestMethod.GET	)
-	public ResponseEntity<Object> getAttachmentToNote(@PathVariable @NotNull String noteId) {
+	public ResponseEntity<Object> getAttachmentToNote(@PathVariable @NotNull String noteId) 
+	{
+		statMetric.increementStat("GET /note/{noteId}/attachments");
 		logger.info("Getting attachments of note with id:" +noteId);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -58,6 +66,8 @@ public class AttachmentController {
 	
 	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.DELETE	)
 	public ResponseEntity<Object> deleteAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId) {
+		
+		statMetric.increementStat("DELETE /note/{noteId}/attachments/{idAttachments}");
 		logger.info("Deleting attachments of note with id:" +noteId);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
@@ -70,6 +80,8 @@ public class AttachmentController {
 	
 	@RequestMapping(value = "/note/{noteId}/attachments/{idAttachments}", method = RequestMethod.PUT	)
 	public ResponseEntity<Object> updateAttachmentToNote(@PathVariable("noteId") @NotNull String noteId, @PathVariable("idAttachments") @NotNull String attachmentId, @RequestParam("file") MultipartFile file) {
+		
+		statMetric.increementStat("PUT /note/{noteId}/attachments/{idAttachments}");
 		logger.info("Updating attachments of note with id:" +noteId);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
