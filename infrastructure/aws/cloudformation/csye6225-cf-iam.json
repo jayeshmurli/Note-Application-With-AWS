@@ -176,7 +176,7 @@
                        "Action": [ "sts:AssumeRole" ]
                    } ]
 	       },	   
-	       "ManagedPolicyArns": [ { "Ref" : "CodeDeployEC2S3Policy" }, {"Ref" : "EC2UploadToS3Policy"} ],
+	       "ManagedPolicyArns": [ { "Ref" : "CodeDeployEC2S3Policy" }, {"Ref" : "EC2UploadToS3Policy"}, "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy" ],
     	       "RoleName": "CodeDeployEC2ServiceRole"	       
            }       
        },       
