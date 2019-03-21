@@ -4,6 +4,8 @@ package com.restapi.controllers;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,9 +22,12 @@ public class RegisterUserController {
 
 	@Autowired
 	private RegisterService registerService;
+	
+	private static final Logger logger = LoggerFactory.getLogger(RegisterUserController.class);
 
 	@RequestMapping(value = "/user/register", method = RequestMethod.POST)
 	public ResponseEntity<Object> registerUser(@Valid @RequestBody  Credentials credentials) {
+		logger.info("Registering user");
 		return this.registerService.registerUser(credentials);
 	}
 }

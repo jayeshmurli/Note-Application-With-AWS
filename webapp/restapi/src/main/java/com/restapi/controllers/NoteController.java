@@ -2,6 +2,8 @@ package com.restapi.controllers;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +25,11 @@ public class NoteController {
 
 	@Autowired
 	NoteService noteService;
-
+	
 	@Autowired
 	StatMetric statMetric;
+	
+	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 	
 	@RequestMapping(value = "/note", method = RequestMethod.POST)
 	public ResponseEntity<Object> addNote(@RequestBody Note note) {
@@ -37,10 +41,12 @@ public class NoteController {
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.UNAUTHORIZED);
 		}
 		if (StringUtils.isEmpty(note.getTitle())) {
+			logger.info("Title is missing");
 			errorResponse = new ApiResponse(HttpStatus.BAD_REQUEST, "Please Enter Title", "Please Enter Title");
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
 		if (StringUtils.isEmpty(note.getContent())) {
+			logger.info("Content is missing");
 			errorResponse = new ApiResponse(HttpStatus.BAD_REQUEST, "Please Enter Content", "Please Enter Content");
 			return new ResponseEntity<Object>(errorResponse, HttpStatus.BAD_REQUEST);
 		}
@@ -50,7 +56,7 @@ public class NoteController {
 	@RequestMapping(value = "/note", method = RequestMethod.GET)
 	public ResponseEntity<Object> getNote(){
 		statMetric.increementStat("GET /note");
-		
+		logger.info("Getting all notes");
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
@@ -64,6 +70,7 @@ public class NoteController {
 	
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Object> getNoteById(@PathVariable @NotNull String id){
+		logger.info("Getting note with id:" + id);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		ApiResponse errorResponse;
@@ -78,6 +85,7 @@ public class NoteController {
 	@RequestMapping(value = "/note/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Object> deleteNote(@PathVariable("id") @NotNull String id) 
 	{
+		logger.info("Deleting note with id:" + id);
 		String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		ApiResponse errorResponse;
 		if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
@@ -91,6 +99,7 @@ public class NoteController {
     @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Object> updateNote(@RequestBody Note note,@PathVariable("id") @NotNull String id)
     {
+    	logger.info("Updating note with id:" + id);
 	   String message = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	   ApiResponse errorResponse;
 	   if (message.equals("Username does not exist") || message.equals("Invalid Credentials")|| message.equals("Username not entered") || message.equals("Password not entered")) {
