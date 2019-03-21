@@ -58,8 +58,10 @@ public class AttachmentDAO {
 		//System.out.println(this.islocal);
 		
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			return this.saveAttachmentToLocal(file, note);
 		} else {
+			logger.info("Application running on cloud environment");
 			return this.saveAttachmentToS3Bucket(file, note);
 		}
 
@@ -76,7 +78,7 @@ public class AttachmentDAO {
 
 	private Attachment saveAttachmentToLocal(MultipartFile file, Note note) 
 	{
-		logger.info("Saving attachments to local");
+		logger.debug("Saving attachments to local");
 		Attachment attachment = null;
 		String filename;
 		try {
@@ -99,7 +101,7 @@ public class AttachmentDAO {
 
 	private Attachment saveAttachmentToS3Bucket(MultipartFile file, Note note) 
 	{
-		logger.info("Saving attachments to S3 bucket");
+		logger.debug("Saving attachments to S3 bucket");
 		Attachment attachment = null;
 		String filename;
 		try {
@@ -114,8 +116,8 @@ public class AttachmentDAO {
 //					.generatePresignedUrl(bucketName, filename, new Date(System.currentTimeMillis() + 5 * 60 * 1000))
 //					.toString();
 			tempFile.delete();
-			System.out.println(path);
-			System.out.println(this.bucketName);
+			logger.debug("File path : " + path);
+			logger.debug("Bucket Name : " + bucketName);
 			attachment = new Attachment(path, file.getContentType(), note);
 			this.entityManager.persist(attachment);
 		} catch (Exception e) 
@@ -127,7 +129,7 @@ public class AttachmentDAO {
 
 	public Attachment getAttachmentFromId(String id) 
 	{
-		logger.info("Getting attachment from attachment ID");
+		logger.info("Getting attachment from attachment ID : " + id);
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		return attachmentToBeDeleted;
 	}
@@ -135,8 +137,10 @@ public class AttachmentDAO {
 	@Transactional
 	public void deleteAttachment(String id) {
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			this.deleteAttachmentFromLocal(id);
 		} else {
+			logger.info("Application running on cloud environment");
 			this.deleteAttachmentFromS3Bucket(id);
 		}
 
@@ -145,7 +149,7 @@ public class AttachmentDAO {
 	@Transactional
 	public void deleteAttachmentFromLocal(String id) 
 	{
-		logger.info("Deleting attachment from local");
+		logger.debug("Deleting attachment from local");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		boolean successfullyDeleted = deleteFromMemory(attachmentToBeDeleted);
 		if (successfullyDeleted) {
@@ -162,7 +166,7 @@ public class AttachmentDAO {
 	@Transactional
 	public void deleteAttachmentFromS3Bucket(String id) 
 	{
-		logger.info("Deleting attachment from S3 bucket");
+		logger.debug("Deleting attachment from S3 bucket");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeDeleted.getFileName();
 		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
@@ -194,7 +198,7 @@ public class AttachmentDAO {
 
 	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) 
 	{
-		logger.info("Deleting attachment from local");
+		logger.debug("Deleting attachment from local");
 		String path = attachmentToBeDeleted.getFileName();
 		System.out.println(path);
 		try {
@@ -215,8 +219,10 @@ public class AttachmentDAO {
 	@Transactional
 	public Attachment updateAttachment(String id, Attachment attachment, MultipartFile file, Note note) {
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			return this.updateAttachmentFromLocal(id, attachment, file, note);
 		} else {
+			logger.info("Application running on cloud environment");
 			return this.updateAttachmentFromS3Bucket(id, attachment, file, note);
 		}
 	}
@@ -224,7 +230,7 @@ public class AttachmentDAO {
 	@Transactional
 	public Attachment updateAttachmentFromLocal(String id, Attachment attachment, MultipartFile file, Note note) 
 	{
-		logger.info("Updating attachment from local");
+		logger.debug("Updating attachment from local");
 		// delete actual file from local
 		boolean successfullyDeleted = deleteFromMemory(attachment);
 
@@ -249,7 +255,7 @@ public class AttachmentDAO {
 
 	private void saveAttachmentToLocalMemory(MultipartFile file, Note note) 
 	{
-		logger.info("Saving attachment to local");
+		logger.debug("Saving attachment to local");
 		String filename = "";
 		try {
 			Files.createDirectories(Paths.get(UPLOADED_FOLDER));
@@ -267,7 +273,7 @@ public class AttachmentDAO {
 	@Transactional
 	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment, MultipartFile file, Note note) 
 	{
-		logger.info("Updating attachment from S3 bucket");
+		logger.debug("Updating attachment from S3 bucket");
 		// delete actual file from S3bucket
 		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeUpdated.getFileName();
@@ -318,7 +324,7 @@ public class AttachmentDAO {
 
 	private File convert(MultipartFile file) 
 	{
-		logger.info("convert");
+		logger.info("Converting a Multipart File");
 		File convFile = new File(file.getOriginalFilename());
 		try {
 			convFile.createNewFile();

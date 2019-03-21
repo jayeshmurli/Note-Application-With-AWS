@@ -38,17 +38,17 @@ public class RegisterService {
 	public ResponseEntity<Object> registerUser(Credentials credentials) {
 		if(!validUtil.verifyEmail(credentials.getUsername())){
 			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "Not an valid email address");
-			logger.info("Email validation failed");
+			logger.error("Email validation failed");
 			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
 		}
 		else if(loginService.checkIfUserExists(credentials.getUsername())) {
 			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "User with same email already exists");
-			logger.info("User already exists");
+			logger.error("User already exists");
 			return new ResponseEntity<Object>(apiError,  HttpStatus.BAD_REQUEST);
 		}
 		else if (!validUtil.verifyPassword(credentials.getPassword())) {
 			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Invalid syntax for this request was provided.", "Password must contain minimum 8 characters,atleast one uppercase,lowercase,digit and special character and no whitespaces");
-			logger.info("Password validation failed");
+			logger.error("Password validation failed");
 			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
 		}
 		else {

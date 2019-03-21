@@ -52,7 +52,7 @@ public class NoteService {
 		} catch (NoResultException e) {
 			ApiResponse response = new ApiResponse(HttpStatus.BAD_REQUEST, "Note does not exist.",
 					"Note does not exist.");
-			logger.error(e.toString());
+			logger.error("No note exists with id : " + id);
 			return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
 		}
 		if (!n1.getCreatedBy().getUsername().equals(username)) {
@@ -78,6 +78,7 @@ public class NoteService {
 			notes.add(new NoteJson(not));
 
 		if (notes.isEmpty()) {
+			logger.info("No note exists for user  ");
 			ApiResponse resp = new ApiResponse(HttpStatus.NOT_FOUND,
 					"The requested resource could not be found for the user", "Resource not available");
 			return new ResponseEntity<Object>(resp, HttpStatus.NOT_FOUND);
@@ -92,11 +93,13 @@ public class NoteService {
 		try {
 			note = this.noteDao.getNote(id);
 		} catch (NoResultException e) {
+			logger.error("No note exists with id : " + id);
 			ApiResponse resp = new ApiResponse(HttpStatus.NOT_FOUND, "The requested resource could not be found",
 					"Resource not available");
 			return new ResponseEntity<Object>(resp, HttpStatus.NOT_FOUND);
 		}
 		if (!note.getCreatedBy().getUsername().equals(username)) {
+			logger.info("User not authorized to operate on Note");
 			ApiResponse resp = new ApiResponse(HttpStatus.UNAUTHORIZED,
 					"The requested resource not authorized for the user", "Resource not available");
 			return new ResponseEntity<Object>(resp, HttpStatus.UNAUTHORIZED);
@@ -109,6 +112,7 @@ public class NoteService {
 		// check if note exists
 		boolean noteExists = this.checkIfNoteExists(id);
 		if (!noteExists) {
+			logger.info("No note exists with id : " + id);
 			ApiResponse apiError = new ApiResponse(HttpStatus.BAD_REQUEST, "Note does not exist",
 					"Note does not exist");
 			return new ResponseEntity<Object>(apiError, HttpStatus.BAD_REQUEST);
@@ -121,6 +125,7 @@ public class NoteService {
 		// check if note owner matches with user
 		boolean checkIfNoteBelongsToUserFlag = this.checkIfNoteBelongsToUser(user, noteOwnerId);
 		if (!checkIfNoteBelongsToUserFlag) {
+			logger.info("User not authorized to operate on Note");
 			ApiResponse apiError = new ApiResponse(HttpStatus.UNAUTHORIZED, "Note does not belong to user",
 					"Note does not belong to user");
 			return new ResponseEntity<Object>(apiError, HttpStatus.UNAUTHORIZED);

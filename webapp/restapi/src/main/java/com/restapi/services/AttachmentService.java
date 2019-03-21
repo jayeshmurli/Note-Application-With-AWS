@@ -37,12 +37,12 @@ public class AttachmentService {
 			Note note = this.noteDAO.getNoteFromId(noteId);
 			if (note == null) {
 				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
-				logger.info("No note found for note id " + noteId);
+				logger.error("No note found for note id " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 			} else if (!note.getCreatedBy().getUsername().equals(username)) {
 				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
 						"Resource not owned by user");
-				logger.info("User " + username + " not authorized to add attachment to note with note ID: " + noteId);
+				logger.error("User " + username + " not authorized to add attachment to note with note ID: " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
 			} else {
 				attachmentJSON = new AttachmentJSON(this.attachmentDAO.saveAttachment(file, note));
@@ -63,12 +63,12 @@ public class AttachmentService {
 			Note note = this.noteDAO.getNoteFromId(noteId);
 			if (note == null) {
 				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
-				logger.info("No note found for id " + noteId);
+				logger.error("No note found for id " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 			} else if (!note.getCreatedBy().getUsername().equals(username)) {
 				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
 						"Resource not owned by user");
-				logger.info("User " + username + " not authorized to get attachment for note with note ID: " + noteId);
+				logger.error("User " + username + " not authorized to get attachment for note with note ID: " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
 			} else {
 				for (Attachment at : this.attachmentDAO.getAttachmentFromNote(note))
@@ -88,19 +88,19 @@ public class AttachmentService {
 			Note note = this.noteDAO.getNoteFromId(noteId);
 			if (note == null) {
 				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
-				logger.info("No note found for id " + noteId);
+				logger.error("No note found for id " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 			} else if (!note.getCreatedBy().getUsername().equals(username)) {
 				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
 						"Resource not owned by user");
-				logger.info(
+				logger.error(
 						"User " + username + " not authorized to delete attachment for note with note ID: " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
 			} else {
 				Attachment attachmentToBeDeleted = this.attachmentDAO.getAttachmentFromId(attachmentId);
 				if (attachmentToBeDeleted == null) {
 					apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Attachment not found", "Attachment not found");
-					logger.info("No attachment found for id " + attachmentId);
+					logger.error("No attachment found for id " + attachmentId);
 					return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 				} else {
 					// delete actual file from local/S3 bucket
@@ -125,19 +125,19 @@ public class AttachmentService {
 			Note note = this.noteDAO.getNoteFromId(noteId);
 			if (note == null) {
 				apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Note not found", "Note not found");
-				logger.info("No note found for id " + noteId);
+				logger.error("No note found for id " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 			} else if (!note.getCreatedBy().getUsername().equals(username)) {
 				apiResponse = new ApiResponse(HttpStatus.UNAUTHORIZED, "Resource not owned by user",
 						"Resource not owned by user");
-				logger.info(
+				logger.error(
 						"User " + username + " not authorized to delete attachment for note with note ID: " + noteId);
 				return new ResponseEntity<Object>(apiResponse, HttpStatus.UNAUTHORIZED);
 			} else {
 				Attachment attachmentToBeUpdated = this.attachmentDAO.getAttachmentFromId(attachmentId);
 				if (attachmentToBeUpdated == null) {
 					apiResponse = new ApiResponse(HttpStatus.NOT_FOUND, "Attachment not found", "Attachment not found");
-					logger.info("No attachment found for id " + attachmentId);
+					logger.error("No attachment found for id " + attachmentId);
 					return new ResponseEntity<Object>(apiResponse, HttpStatus.NOT_FOUND);
 				} else {
 					this.attachmentDAO.updateAttachment(attachmentId, attachmentToBeUpdated, file, note);
