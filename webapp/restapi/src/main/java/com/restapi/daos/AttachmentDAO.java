@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,11 +36,13 @@ import com.restapi.json.AttachmentJSON;
 import com.restapi.model.Attachment;
 import com.restapi.model.Note;
 import com.restapi.response.ApiResponse;
+import com.restapi.services.AttachmentService;
 
 @Service
 public class AttachmentDAO {
 
 	private static String UPLOADED_FOLDER = System.getProperty("user.dir") + "//attachments//";
+	private static final Logger logger = LoggerFactory.getLogger(AttachmentDAO.class);
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -51,23 +55,30 @@ public class AttachmentDAO {
 
 	@Transactional
 	public Attachment saveAttachment(MultipartFile file, Note note) {
-		System.out.println(this.islocal);
+		//System.out.println(this.islocal);
+		
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			return this.saveAttachmentToLocal(file, note);
 		} else {
+			logger.info("Application running on cloud environment");
 			return this.saveAttachmentToS3Bucket(file, note);
 		}
 
 	}
 
-	public List<Attachment> getAttachmentFromNote(Note note) {
+	public List<Attachment> getAttachmentFromNote(Note note) 
+	{
+		logger.info("Getting all attachments from note");
 		TypedQuery<Attachment> query = this.entityManager.createQuery("SELECT a from Attachment a where a.note = ?1",
 				Attachment.class);
 		query.setParameter(1, note);
 		return query.getResultList();
 	}
 
-	private Attachment saveAttachmentToLocal(MultipartFile file, Note note) {
+	private Attachment saveAttachmentToLocal(MultipartFile file, Note note) 
+	{
+		logger.debug("Saving attachments to local");
 		Attachment attachment = null;
 		String filename;
 		try {
@@ -83,11 +94,14 @@ public class AttachmentDAO {
 			this.entityManager.persist(attachment);
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error(e.toString());
 		}
 		return attachment;
 	}
 
-	private Attachment saveAttachmentToS3Bucket(MultipartFile file, Note note) {
+	private Attachment saveAttachmentToS3Bucket(MultipartFile file, Note note) 
+	{
+		logger.debug("Saving attachments to S3 bucket");
 		Attachment attachment = null;
 		String filename;
 		try {
@@ -102,16 +116,20 @@ public class AttachmentDAO {
 //					.generatePresignedUrl(bucketName, filename, new Date(System.currentTimeMillis() + 5 * 60 * 1000))
 //					.toString();
 			tempFile.delete();
-			System.out.println(path);
-			System.out.println(this.bucketName);
+			logger.debug("File path : " + path);
+			logger.debug("Bucket Name : " + bucketName);
 			attachment = new Attachment(path, file.getContentType(), note);
 			this.entityManager.persist(attachment);
-		} catch (Exception e) {
+		} catch (Exception e) 
+		{
+			logger.error(e.toString());
 		}
 		return attachment;
 	}
 
-	public Attachment getAttachmentFromId(String id) {
+	public Attachment getAttachmentFromId(String id) 
+	{
+		logger.info("Getting attachment from attachment ID : " + id);
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		return attachmentToBeDeleted;
 	}
@@ -119,15 +137,19 @@ public class AttachmentDAO {
 	@Transactional
 	public void deleteAttachment(String id) {
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			this.deleteAttachmentFromLocal(id);
 		} else {
+			logger.info("Application running on cloud environment");
 			this.deleteAttachmentFromS3Bucket(id);
 		}
 
 	}
 
 	@Transactional
-	public void deleteAttachmentFromLocal(String id) {
+	public void deleteAttachmentFromLocal(String id) 
+	{
+		logger.debug("Deleting attachment from local");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		boolean successfullyDeleted = deleteFromMemory(attachmentToBeDeleted);
 		if (successfullyDeleted) {
@@ -142,7 +164,9 @@ public class AttachmentDAO {
 	}
 
 	@Transactional
-	public void deleteAttachmentFromS3Bucket(String id) {
+	public void deleteAttachmentFromS3Bucket(String id) 
+	{
+		logger.debug("Deleting attachment from S3 bucket");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeDeleted.getFileName();
 		String filename = entirePath.substring(entirePath.lastIndexOf("/") + 1);
@@ -150,25 +174,31 @@ public class AttachmentDAO {
 			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			s3Client.deleteObject(this.bucketName, filename);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 		}
 
 		deleteFromDB(id);
 	}
 
 	@Transactional
-	public void deleteFromDB(String id) {
+	public void deleteFromDB(String id) 
+	{
+		logger.info("Deleting attachment from Database");
 		Attachment attachmentToBeDeleted = this.entityManager.find(Attachment.class, id);
 		try {
 			this.entityManager.remove(attachmentToBeDeleted);
 			flushAndClear();
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 		}
 
 	}
 
-	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) {
+	public boolean deleteFromMemory(Attachment attachmentToBeDeleted) 
+	{
+		logger.debug("Deleting attachment from local");
 		String path = attachmentToBeDeleted.getFileName();
 		System.out.println(path);
 		try {
@@ -179,7 +209,8 @@ public class AttachmentDAO {
 				return false;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 			return false;
 		}
 
@@ -188,14 +219,18 @@ public class AttachmentDAO {
 	@Transactional
 	public Attachment updateAttachment(String id, Attachment attachment, MultipartFile file, Note note) {
 		if (this.islocal) {
+			logger.info("Application running on dev environment");
 			return this.updateAttachmentFromLocal(id, attachment, file, note);
 		} else {
+			logger.info("Application running on cloud environment");
 			return this.updateAttachmentFromS3Bucket(id, attachment, file, note);
 		}
 	}
 
 	@Transactional
-	public Attachment updateAttachmentFromLocal(String id, Attachment attachment, MultipartFile file, Note note) {
+	public Attachment updateAttachmentFromLocal(String id, Attachment attachment, MultipartFile file, Note note) 
+	{
+		logger.debug("Updating attachment from local");
 		// delete actual file from local
 		boolean successfullyDeleted = deleteFromMemory(attachment);
 
@@ -218,7 +253,9 @@ public class AttachmentDAO {
 		return attachmentToBeUpdated1;
 	}
 
-	private void saveAttachmentToLocalMemory(MultipartFile file, Note note) {
+	private void saveAttachmentToLocalMemory(MultipartFile file, Note note) 
+	{
+		logger.debug("Saving attachment to local");
 		String filename = "";
 		try {
 			Files.createDirectories(Paths.get(UPLOADED_FOLDER));
@@ -228,12 +265,15 @@ public class AttachmentDAO {
 			Path path = Paths.get(UPLOADED_FOLDER + filename);
 			Files.write(path, file.getBytes());
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 		}
 	}
 
 	@Transactional
-	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment, MultipartFile file, Note note) {
+	public Attachment updateAttachmentFromS3Bucket(String id, Attachment attachment, MultipartFile file, Note note) 
+	{
+		logger.debug("Updating attachment from S3 bucket");
 		// delete actual file from S3bucket
 		Attachment attachmentToBeUpdated = this.entityManager.find(Attachment.class, id);
 		String entirePath = attachmentToBeUpdated.getFileName();
@@ -242,7 +282,8 @@ public class AttachmentDAO {
 			AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 			s3Client.deleteObject(this.bucketName, filename);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 		}
 
 		// save new file in S3bucket
@@ -260,7 +301,8 @@ public class AttachmentDAO {
 			tempFile.delete();
 			attachment = new Attachment(path, file.getContentType(), note);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 		}
 
 		// update entry from DB
@@ -269,7 +311,9 @@ public class AttachmentDAO {
 	}
 
 	@Transactional
-	public Attachment updateInDB(String id, Attachment attachment) {
+	public Attachment updateInDB(String id, Attachment attachment) 
+	{
+		logger.info("Updating attachment in DB");
 		Attachment attachmentToBeUpdated1 = this.entityManager.find(Attachment.class, id);
 		attachmentToBeUpdated1.setFileName(attachment.getFileName());
 		attachmentToBeUpdated1.setFileType(attachment.getFileType());
@@ -278,7 +322,9 @@ public class AttachmentDAO {
 
 	}
 
-	private File convert(MultipartFile file) {
+	private File convert(MultipartFile file) 
+	{
+		logger.info("Converting a Multipart File");
 		File convFile = new File(file.getOriginalFilename());
 		try {
 			convFile.createNewFile();
@@ -286,7 +332,8 @@ public class AttachmentDAO {
 			fos.write(file.getBytes());
 			fos.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.toString());
 		}
 		return convFile;
 	}
