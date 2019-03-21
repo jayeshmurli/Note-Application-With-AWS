@@ -29,7 +29,7 @@ jobs:
             mkdir package
             mv webapp/restapi/startApplication.sh package/
             mv webapp/restapi/target/restapi.jar package/
-            mv infrastructure/aws/codedeployamazon-cloudwatch-agent.json package/
+            mv infrastructure/aws/codedeploy/amazon-cloudwatch-agent.json package/
             mv appspec.yml package/
             cd package
             zip application.zip *
