@@ -8,6 +8,8 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.restapi.model.User;
@@ -16,20 +18,28 @@ import com.restapi.model.User;
 public class UserDAO {
 	@PersistenceContext
 	private EntityManager entityManager;
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
 
 	@Transactional
-	public User saveUser(User user) {
+	public User saveUser(User user) 
+	{
+		logger.info("Saving user object to database");
 		return this.entityManager.merge(user);
 	}
 
-	public User getUser(String username) {
+	public User getUser(String username) 
+	{
+		logger.info("Getting user data from database for user ");
 		TypedQuery<User> query = this.entityManager.createQuery("SELECT c from User c where c.username = ?1",
 				User.class);
 		query.setParameter(1, username);
 		return query.getSingleResult();
 	}
 
-	public String getStoredPasswordFromUser(String email) {
+	public String getStoredPasswordFromUser(String email) 
+	{
+		logger.info("Getting stored password from user");
 		String hashed_pw = "";
 		try {
 			Query query = this.entityManager.createQuery("SELECT u FROM User u WHERE u.username = ?1");
@@ -39,6 +49,7 @@ public class UserDAO {
 
 		} catch (Exception e) {
 			// System.out.println("caught exception in hashed_pw::");
+			logger.error(e.toString());
 			hashed_pw = null;
 
 		}
@@ -47,7 +58,9 @@ public class UserDAO {
 		return hashed_pw;
 	}
 
-	public int checkIfUserExists(String email) {
+	public int checkIfUserExists(String email) 
+	{
+		logger.info("Checking if user exists");
 		// System.out.println("Email is :"+email);
 		int result = 0;
 		try {
@@ -58,6 +71,7 @@ public class UserDAO {
 			result = Math.toIntExact(resultInLong);
 		} catch (Exception e) {
 			// System.out.println("Exception in checkIfUserExists:"+e.getMessage());
+			logger.error(e.toString());
 			result = 0;
 		}
 
