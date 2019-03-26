@@ -101,6 +101,44 @@
            },
            "DeletionPolicy" : "Snapshot"
        },
+       "SNSTopic": {
+           "Type": "AWS::SNS::Topic",
+           "Properties": {
+	       "TopicName": "password_reset",
+               "DisplayName": "password_reset",	       
+               "Subscription": [{
+                   "Endpoint": { "Fn::GetAtt": [ "LambdaFunction", "Arn" ] },
+                   "Protocol": "lambda"
+               }]
+           }
+       },
+       "LambdaFunction": {
+           "Type": "AWS::Lambda::Function",
+           "Properties": {
+	       "FunctionName": "password_reset",	   
+               "Handler": "com.restapi.lambda.RequestHandler",
+	       "MemorySize": 128,
+               "Role": {"Fn::ImportValue" : "LambdaServiceRole"},
+               "Code": {
+                   "S3Bucket": "lambda-functions",
+                   "S3Key": "lambda.zip"
+               },
+               "Runtime": "java8",
+               "Timeout": 100,
+               "TracingConfig": {
+                   "Mode": "Active"
+               }
+           }
+       },
+       "LambdaPermission": {
+           "Type": "AWS::Lambda::Permission",
+           "Properties": {
+               "Action": "lambda:invokeFunction",
+               "FunctionName": {"Fn::GetAtt": ["LambdaFunction", "Arn"]},
+               "Principal": "apigateway.amazonaws.com",
+	       "SourceAccount": {"Ref": "AWS::AccountId"}
+               }
+       },
        "CodeDeployApplication": {
            "Type": "AWS::CodeDeploy::Application",
            "Properties": {
