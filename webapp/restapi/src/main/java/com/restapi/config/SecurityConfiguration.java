@@ -29,6 +29,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public void configure(WebSecurity web) throws Exception 
 	{
 		web.ignoring().antMatchers(HttpMethod.POST, "/user/register/");
+		web.ignoring().antMatchers(HttpMethod.POST, "/reset");
 	}
 	
 	@Autowired
