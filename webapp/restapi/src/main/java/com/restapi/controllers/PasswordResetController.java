@@ -1,5 +1,7 @@
 package com.restapi.controllers;
 
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -27,12 +29,16 @@ public class PasswordResetController
 	PasswordResetService passwordResetService;
 	
 	@RequestMapping(value = "/reset", method = RequestMethod.POST)
-	public ResponseEntity<Object> registerUser(@Valid @RequestBody  String email) {
+	public ResponseEntity<Object> registerUser(@Valid @RequestBody  Map<String, String>  email) {
 		
 		logger.info("Resetting password for user");
 		statMetric.increementStat("POST /reset");
 		
-		return this.passwordResetService.sendResetEmail(email);
+		Map.Entry<String,String> entry = email.entrySet().iterator().next();
+		//String key = entry.getKey();
+		String value = entry.getValue();
+		
+		return this.passwordResetService.sendResetEmail(value);
 	}
 
 }
