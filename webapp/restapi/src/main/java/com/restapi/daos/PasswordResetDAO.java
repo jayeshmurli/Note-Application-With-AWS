@@ -1,23 +1,41 @@
 package com.restapi.daos;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
-import com.amazonaws.services.lambda.model.InvokeRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
+
+@Service
 public class PasswordResetDAO 
 {
-	private static String lambdaFuncName = "";
+	
+	@Value("${cloud.snsTopic}")
+	private String snsTopic;
+	
+	private static String topicArn = "";
+	
+	private static final Logger logger = LoggerFactory.getLogger(PasswordResetDAO.class);
 	
 	public void sendEmailToUser (String email)
 	{
-		Regions region = Regions.fromName("us-east-1");
-		AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard().withRegion(region);
-		AWSLambda client = builder.build();
+		logger.info("Sending mail to user using topic arn:::"+snsTopic);
 		
-		InvokeRequest req = new InvokeRequest().withFunctionName(lambdaFuncName).withPayload("{ email : "+ email +"}"); 
+		topicArn = snsTopic;
 		
-		client.invoke(req);
+		AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
+		
+		
+		final String msg = email;
+		final PublishRequest publishRequest = new PublishRequest(topicArn, msg);
+		final PublishResult publishResponse = snsClient.publish(publishRequest);
+		
+		logger.info("MessageId: " + publishResponse.getMessageId());
+
 	}
 
 }
