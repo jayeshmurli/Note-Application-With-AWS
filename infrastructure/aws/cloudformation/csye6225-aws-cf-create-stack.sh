@@ -32,9 +32,9 @@ fi
 echo "Creating stack..."
 STACK_ID=$( \
   aws cloudformation create-stack \
-  --stack-name ${STACK_NAME}-Network \
+  --stack-name ${STACK_NAME} \
   --template-body file://${TEMPLATE_NAME} \
-  --parameters ParameterKey=StackName,ParameterValue=${STACK_NAME}-Network \
+  --parameters ParameterKey=StackName,ParameterValue=${STACK_NAME} \
   | jq -r .StackId \
 )
 
