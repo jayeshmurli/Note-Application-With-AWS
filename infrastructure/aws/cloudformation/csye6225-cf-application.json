@@ -130,7 +130,7 @@
            "Properties": {
 	       "FunctionName": "password_reset",	   
                "Handler": "com.csye6225.lambda.EmailHandler::handleRequest",
-	       "MemorySize": 128,
+	       "MemorySize": 256,
 	       "Environment": {
                    "Variables": {
                    	"AWS_DOMAIN_NAME": {  "Ref" : "BucketName"  }
