@@ -75,27 +75,15 @@
 	       "PolicyDocument":{
 	           "Version": "2012-10-17",
                    "Statement": [
-	               {
-                           "Sid": "ReadOnlyPermissions",
-                           "Effect": "Allow", 
-                           "Action": [
-                               "lambda:GetAccountSettings",
-                               "lambda:ListFunctions",
-                               "lambda:ListTags",
-                               "lambda:GetEventSourceMapping",
-                               "lambda:ListEventSourceMappings",
-                               "iam:ListRoles"
-                           ],
-                           "Resource": "*"
-                       },
                        {
                            "Sid": "DevelopFunctions",
                            "Effect": "Allow", 
-                           "NotAction": [
+                           "Action": [
                                "lambda:AddPermission",
-                               "lambda:PutFunctionConcurrency"
+                               "lambda:PutFunctionConcurrency",
+			       "lambda:UpdateFunctionCode"
                            ],
-                           "Resource": "arn:aws:lambda:*:*:function:*"
+                           "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:*"
                        },
                        {
                            "Sid": "DevelopEventSourceMappings",
