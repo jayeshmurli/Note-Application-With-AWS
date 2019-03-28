@@ -83,25 +83,10 @@
                                "lambda:PutFunctionConcurrency",
 			       "lambda:UpdateFunctionCode"
                            ],
-                           "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:*"
-                       },
-                       {
-                           "Sid": "DevelopEventSourceMappings",
-                           "Effect": "Allow", 
-                           "Action": [
-                               "lambda:DeleteEventSourceMapping",
-                               "lambda:UpdateEventSourceMapping",
-                               "lambda:CreateEventSourceMapping"
-                           ],
-                           "Resource": "*",
-                           "Condition": {
-                               "StringLike": {
-                               "lambda:FunctionArn": "arn:aws:lambda:*:*:function:*"
-                               }
-                           }
-                       }
-                  ]       
-	       }
+                           "Resource": {"Fn::Sub" : "arn:aws:lambda:${Region}:${AccountId}:function:*"}
+                       }]       
+	       },
+	       "Users": ["circleci"]
 	   }    
        },
        "CodeDeployEC2S3Policy": {
@@ -148,14 +133,59 @@
                        "Effect"   : "Allow",
                        "Action"   : [
                            "s3:PutObject",
-			                "s3:Get*",
-                            "s3:DeleteObject"
+			   "s3:Get*",
+                           "s3:DeleteObject"
 		       ],
 	               "Resource" : { "Fn::Sub" : "arn:aws:s3:::csye6225-spring2019-${BucketName}.me.csye6225.com/*"}
 		   } ]
 	       }
            }
-       },	   
+       },
+       "EC2PublishSNSPolicy":{
+           "Type" : "AWS::IAM::ManagedPolicy",
+           "Properties" : {
+               "ManagedPolicyName" : "EC2-Publish-SNS",
+               "PolicyDocument" : {
+                   "Version" : "2012-10-17",
+                   "Statement": [ {
+                       "Effect"   : "Allow",
+                       "Action"   : [
+                            "SNS:Publish"
+                       ],
+                       "Resource" : {"Fn::Sub" : "arn:aws:sns:${Region}:${AccountId}:password_reset"}
+                   } ]
+               }
+           }	       
+       },       
+       "LambdaSESPolicy":{
+           "Type" : "AWS::IAM::ManagedPolicy",
+           "Properties" : {
+               "ManagedPolicyName" : "Lambda-Execution-Policy",
+               "PolicyDocument" : {
+                   "Version" : "2012-10-17",
+                   "Statement": [ {
+                       "Effect"   : "Allow",
+                       "Action"   : [
+                     	   "ses:SendEmail"  	          
+                       ],
+                       "Resource": {"Fn::Sub" : "arn:aws:ses:${Region}:${AccountId}:identity/csye6225-spring2019-${BucketName}.me"} 
+                   },
+		   {
+		       "Effect"  : "Allow",
+	               "Action"  : [
+		           "cloudwatch:*",
+                           "dynamodb:*",
+                           "lambda:*",
+                           "logs:*",
+                           "s3:*",
+			   "xray:PutTelemetryRecords",
+                	   "xray:PutTraceSegments"			   
+		       ],
+	               "Resource" : "*"	       
+		   }]
+               }
+           }	       
+       },       
        "CirlceCICodeDeployPolicy": {
            "Type" : "AWS::IAM::ManagedPolicy",
            "Properties" : {
@@ -212,7 +242,12 @@
                        "Action": [ "sts:AssumeRole" ]
                    } ]
 	       },	   
-	       "ManagedPolicyArns": [ { "Ref" : "CodeDeployEC2S3Policy" }, {"Ref" : "EC2UploadToS3Policy"}, "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy" ],
+	       "ManagedPolicyArns": [ 
+		       { "Ref" : "CodeDeployEC2S3Policy" },
+		       {"Ref" : "EC2UploadToS3Policy"}, 
+		       "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy" , 
+		       {"Ref" : "EC2PublishSNSPolicy" }
+	       ],
     	       "RoleName": "CodeDeployEC2ServiceRole"	       
            }       
        },       
@@ -233,23 +268,6 @@
     	       "RoleName": "CodeDeployServiceRole"	       
            }       
        },
-       "LambdaCodeDeployServiceRole": {
-	   "Type": "AWS::IAM::Role",
-           "Properties": {
-               "AssumeRolePolicyDocument": {
-                   "Version" : "2012-10-17",
-                   "Statement": [ {
-                       "Effect": "Allow",
-                       "Principal": {
-                           "Service": [ "codedeploy.amazonaws.com" ]
-                       },
-                       "Action": [ "sts:AssumeRole" ]
-                   } ]
-	       },
-	       "ManagedPolicyArns" : ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForLambda"],
-    	       "RoleName": "LambdaCodeDeployServiceRole"	       
-           }       
-       },
        "LambdaServiceRole": {
            "Type": "AWS::IAM::Role",
            "Properties": {
@@ -263,7 +281,7 @@
                        "Action": [ "sts:AssumeRole" ]
                    } ]
                },
-               "ManagedPolicyArns":[ "arn:aws:iam::aws:policy/AWSLambdaFullAccess" ],
+               "ManagedPolicyArns":[ {"Ref": "LambdaSESPolicy" } ],
                "RoleName": "LambdaServiceRole"
            }
        },
