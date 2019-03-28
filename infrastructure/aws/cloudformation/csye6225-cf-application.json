@@ -129,7 +129,7 @@
            "Type": "AWS::Lambda::Function",
            "Properties": {
 	       "FunctionName": "password_reset",	   
-               "Handler": "com.csy26225.lambda.EmailHandler::handleRequest",
+               "Handler": "com.csye6225.lambda.EmailHandler::handleRequest",
 	       "MemorySize": 128,
 	       "Environment": {
                    "Variables": {
@@ -151,10 +151,9 @@
        "LambdaPermission": {
            "Type": "AWS::Lambda::Permission",
            "Properties": {
-               "Action": "lambda:invokeFunction",
+               "Action": "lambda:InvokeFunction",
                "FunctionName": {"Ref": "LambdaFunction"},
-               "Principal": "apigateway.amazonaws.com",
-	       "SourceAccount": {"Ref": "AWS::AccountId"}
+               "Principal": "sns.amazonaws.com"
                }
        },
        "CodeDeployApplication": {
