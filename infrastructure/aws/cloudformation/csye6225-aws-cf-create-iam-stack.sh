@@ -34,7 +34,7 @@ echo "REGION : $REGION "
 echo "Creating stack... ${STACK_NAME}"
 STACK_ID=$( \
   aws cloudformation create-stack \
-  --stack-name ${STACK_NAME}-IAM \
+  --stack-name ${STACK_NAME} \
   --template-body file://${TEMPLATE_NAME} \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=IAMStackName,ParameterValue=${STACK_NAME}-IAM \
