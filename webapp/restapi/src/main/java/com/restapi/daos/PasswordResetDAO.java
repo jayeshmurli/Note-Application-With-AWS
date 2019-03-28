@@ -1,5 +1,9 @@
 package com.restapi.daos;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +17,8 @@ import com.amazonaws.services.sns.model.PublishResult;
 @Service
 public class PasswordResetDAO 
 {
+	@PersistenceContext
+	private EntityManager entityManager;
 	
 	@Value("${cloud.snsTopic}")
 	private String snsTopic;
@@ -36,6 +42,23 @@ public class PasswordResetDAO
 		
 		logger.info("MessageId: " + publishResponse.getMessageId());
 
+	}
+	
+	public int checkIfUserExists(String email) 
+	{
+		logger.info("Checking if user exists::"+email);
+		int result = 0;
+		try {
+			Query query = this.entityManager.createQuery("SELECT COUNT(u) FROM User u WHERE u.username = ?1");
+			query.setParameter(1, email);
+			Long resultInLong = (Long) query.getSingleResult();
+			result = Math.toIntExact(resultInLong);
+		} catch (Exception e) {
+			logger.error(e.toString());
+			result = 0;
+		}
+
+		return result;
 	}
 
 }
