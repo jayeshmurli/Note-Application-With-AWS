@@ -153,8 +153,7 @@
            "Properties": {
                "Action": "lambda:InvokeFunction",
                "FunctionName": {"Ref": "LambdaFunction"},
-               "Principal": "sns.amazonaws.com",
-	       "SourceAccount": {"Ref": "AWS::AccountId"}
+               "Principal": "sns.amazonaws.com"
                }
        },
        "CodeDeployApplication": {

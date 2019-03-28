@@ -157,6 +157,33 @@
                }
            }	       
        },       
+       "LambdaSESPolicy":{
+           "Type" : "AWS::IAM::ManagedPolicy",
+           "Properties" : {
+               "ManagedPolicyName" : "Lambda-Execution-Policy",
+               "PolicyDocument" : {
+                   "Version" : "2012-10-17",
+                   "Statement": [ {
+                       "Effect"   : "Allow",
+                       "Action"   : [
+                     	   "ses:SendEmail"  	          
+                       ],
+                       "Resource": {"Fn::Sub" : "arn:aws:ses:${Region}:${AccountId}:identity/csye6225-spring2019-${BucketName}.me" 
+                   },
+		   {
+		       "Effect"  : "Allow",
+	               "Action"  : [
+		           "cloudwatch.*",
+                           "dynamodb.*",
+                           "lambda.*",
+                           "logs.*",
+                           "s3.*"			   
+		       ],
+	               "Resource" : "*"	       
+		   }]
+               }
+           }	       
+       },       
        "CirlceCICodeDeployPolicy": {
            "Type" : "AWS::IAM::ManagedPolicy",
            "Properties" : {
