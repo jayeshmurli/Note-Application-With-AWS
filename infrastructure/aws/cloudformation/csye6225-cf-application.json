@@ -16,6 +16,14 @@
         "BucketName": {
             "Type": "String",
             "Description" : "Please enter string for Bucket Name"
+         },
+        "LambdaBucketName": {
+            "Type": "String",
+            "Description" : "Please enter string for Lambda Bucket Name"
+         },
+        "ZipFile": {
+            "Type": "String",
+            "Description" : "Please enter string for ZipFile"
          }
    },
    "Resources" : {
@@ -48,7 +56,8 @@
 			       "echo export DB_PORT=",{"Fn::GetAtt": ["MariaDBInstance","Endpoint.Port"]}," >> /etc/profile \n",
 			       "echo export DB_USERNAME='csye6225master' >> /etc/profile \n",
 			       "echo export DB_PASSWORD='csye6225password' >> /etc/profile \n",
-		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n"	       
+		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n",	       
+		    	       "echo export SNS_TOPIC=",{"Ref": "SNSTopic" }," >> /etc/profile \n"	       
 			   ]
 		        ]
 	           }		
@@ -60,17 +69,21 @@
 	   "Properties" : {
 	       "TableName": "csye6225",
 	       "AttributeDefinitions" : [ { 
-	           "AttributeName" : "id", 
+	           "AttributeName" : "email", 
 	           "AttributeType" : "S" 
-	       } ],
+               }],
 	       "KeySchema" : [ { 
-	           "AttributeName" : "id",
+	           "AttributeName" : "email",
 	           "KeyType" : "HASH"
 	       } ],
 	       "ProvisionedThroughput" : {
                    "ReadCapacityUnits" : "5",
                    "WriteCapacityUnits" : "5"
-               }   
+               },
+	       "TimeToLiveSpecification" : {
+		   "AttributeName" : "expiration",
+		   "Enabled" : true   
+	       }   
            }
        },
        "myDBSubnetGroup" : {
@@ -116,12 +129,17 @@
            "Type": "AWS::Lambda::Function",
            "Properties": {
 	       "FunctionName": "password_reset",	   
-               "Handler": "com.restapi.lambda.RequestHandler",
+               "Handler": "com.csy26225.lambda.EmailHandler::handleRequest",
 	       "MemorySize": 128,
+	       "Environment": {
+                   "Variables": {
+                   	"AWS_DOMAIN_NAME": {  "Ref" : "BucketName"  }
+		   }
+	       },	
                "Role": {"Fn::ImportValue" : "LambdaServiceRole"},
                "Code": {
-                   "S3Bucket": "lambda-functions",
-                   "S3Key": "lambda.zip"
+                   "S3Bucket": {"Ref": "LambdaBucketName"},
+                   "S3Key": {"Ref": "ZipFile"}
                },
                "Runtime": "java8",
                "Timeout": 100,
@@ -134,7 +152,7 @@
            "Type": "AWS::Lambda::Permission",
            "Properties": {
                "Action": "lambda:invokeFunction",
-               "FunctionName": {"Fn::GetAtt": ["LambdaFunction", "Arn"]},
+               "FunctionName": {"Ref": "LambdaFunction"},
                "Principal": "apigateway.amazonaws.com",
 	       "SourceAccount": {"Ref": "AWS::AccountId"}
                }
