@@ -16,6 +16,14 @@
         "BucketName": {
             "Type": "String",
             "Description" : "Please enter string for Bucket Name"
+         },
+        "LambdaBucketName": {
+            "Type": "String",
+            "Description" : "Please enter string for Lambda Bucket Name"
+         },
+        "ZipFile": {
+            "Type": "String",
+            "Description" : "Please enter string for ZipFile"
          }
    },
    "Resources" : {
@@ -48,7 +56,8 @@
 			       "echo export DB_PORT=",{"Fn::GetAtt": ["MariaDBInstance","Endpoint.Port"]}," >> /etc/profile \n",
 			       "echo export DB_USERNAME='csye6225master' >> /etc/profile \n",
 			       "echo export DB_PASSWORD='csye6225password' >> /etc/profile \n",
-		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n"	       
+		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n",	       
+		    	       "echo export SNS_TOPIC=",{"Ref": "SNSTopic" }," >> /etc/profile \n"	       
 			   ]
 		        ]
 	           }		
@@ -60,17 +69,21 @@
 	   "Properties" : {
 	       "TableName": "csye6225",
 	       "AttributeDefinitions" : [ { 
-	           "AttributeName" : "id", 
+	           "AttributeName" : "email", 
 	           "AttributeType" : "S" 
-	       } ],
+               }],
 	       "KeySchema" : [ { 
-	           "AttributeName" : "id",
+	           "AttributeName" : "email",
 	           "KeyType" : "HASH"
 	       } ],
 	       "ProvisionedThroughput" : {
                    "ReadCapacityUnits" : "5",
                    "WriteCapacityUnits" : "5"
-               }   
+               },
+	       "TimeToLiveSpecification" : {
+		   "AttributeName" : "expiration",
+		   "Enabled" : true   
+	       }   
            }
        },
        "myDBSubnetGroup" : {
@@ -100,6 +113,48 @@
                "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
            },
            "DeletionPolicy" : "Snapshot"
+       },
+       "SNSTopic": {
+           "Type": "AWS::SNS::Topic",
+           "Properties": {
+	       "TopicName": "password_reset",
+               "DisplayName": "password_reset",	       
+               "Subscription": [{
+                   "Endpoint": { "Fn::GetAtt": [ "LambdaFunction", "Arn" ] },
+                   "Protocol": "lambda"
+               }]
+           }
+       },
+       "LambdaFunction": {
+           "Type": "AWS::Lambda::Function",
+           "Properties": {
+	       "FunctionName": "password_reset",	   
+               "Handler": "com.csye6225.lambda.EmailHandler::handleRequest",
+	       "MemorySize": 256,
+	       "Environment": {
+                   "Variables": {
+                   	"AWS_DOMAIN_NAME": {  "Ref" : "BucketName"  }
+		   }
+	       },	
+               "Role": {"Fn::ImportValue" : "LambdaServiceRole"},
+               "Code": {
+                   "S3Bucket": {"Ref": "LambdaBucketName"},
+                   "S3Key": {"Ref": "ZipFile"}
+               },
+               "Runtime": "java8",
+               "Timeout": 100,
+               "TracingConfig": {
+                   "Mode": "Active"
+               }
+           }
+       },
+       "LambdaPermission": {
+           "Type": "AWS::Lambda::Permission",
+           "Properties": {
+               "Action": "lambda:InvokeFunction",
+               "FunctionName": {"Ref": "LambdaFunction"},
+               "Principal": "sns.amazonaws.com"
+               }
        },
        "CodeDeployApplication": {
            "Type": "AWS::CodeDeploy::Application",
