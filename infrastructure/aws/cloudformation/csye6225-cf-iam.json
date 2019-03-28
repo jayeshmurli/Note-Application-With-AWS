@@ -168,16 +168,18 @@
                        "Action"   : [
                      	   "ses:SendEmail"  	          
                        ],
-                       "Resource": {"Fn::Sub" : "arn:aws:ses:${Region}:${AccountId}:identity/csye6225-spring2019-${BucketName}.me" 
+                       "Resource": {"Fn::Sub" : "arn:aws:ses:${Region}:${AccountId}:identity/csye6225-spring2019-${BucketName}.me"} 
                    },
 		   {
 		       "Effect"  : "Allow",
 	               "Action"  : [
-		           "cloudwatch.*",
-                           "dynamodb.*",
-                           "lambda.*",
-                           "logs.*",
-                           "s3.*"			   
+		           "cloudwatch:*",
+                           "dynamodb:*",
+                           "lambda:*",
+                           "logs:*",
+                           "s3:*",
+			   "xray:PutTelemetryRecords",
+                	   "xray:PutTraceSegments"			   
 		       ],
 	               "Resource" : "*"	       
 		   }]
@@ -279,7 +281,7 @@
                        "Action": [ "sts:AssumeRole" ]
                    } ]
                },
-               "ManagedPolicyArns":[ "arn:aws:iam::aws:policy/AWSLambdaFullAccess" ],
+               "ManagedPolicyArns":[ {"Ref": "LambdaSESPolicy" } ],
                "RoleName": "LambdaServiceRole"
            }
        },
