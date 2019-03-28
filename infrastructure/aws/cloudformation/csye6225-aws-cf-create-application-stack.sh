@@ -11,14 +11,11 @@
 
 
 TEMPLATE_NAME=$1
-STACK_NAME=$2
-KEY_NAME=$3
-BUCKET_NAME=$4
 
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]
+if [ -z "$1" ] 
   then
     echo "Error! Argument Required"
-    echo "Usage - sh script.sh <TemplateFile> <Stack_Name> <Key_Name> <Bucket_Name>" 
+    echo "Usage - sh script.sh <TemplateFile> " 
     exit 1
 fi
 
@@ -27,6 +24,24 @@ if [ ! -e $TEMPLATE_NAME ]
        echo "Error! Template File not exisits"
        exit 1
 fi
+
+echo "Enter Network Stack Name:"
+read NETWORK_STACK_NAME
+
+echo "Enter Application STACK_NAME"
+read STACK_NAME
+
+echo "Enter KeyPair Name"
+read KEY_NAME
+
+echo "Enter Bucket Name for EC2"
+read BUCKET_NAME
+
+echo "Enter Bucket Name for Lambda Function"
+read LAMBDA_BUCKET_NAME
+
+echo "Enter Application Zip Name"
+read ZIP_FILE
 
 ###### REPLACE=$(sed -i 's/stackvariable/'${STACK_NAME}'/g' template.json)
 
@@ -38,10 +53,12 @@ echo "Image ID : $ImageId "
 echo "Creating stack..."
 STACK_ID=$( \
   aws cloudformation create-stack \
-  --stack-name ${STACK_NAME}-App \
+  --stack-name ${STACK_NAME} \
   --template-body file://${TEMPLATE_NAME} \
-  --parameters ParameterKey=NetworkStackName,ParameterValue=${STACK_NAME}-Network  \
+  --parameters ParameterKey=NetworkStackName,ParameterValue=${NETWORK_STACK_NAME}  \
   ParameterKey=ImageId,ParameterValue=$ImageId \
+  ParameterKey=LambdaBucketName,ParameterValue=$LAMBDA_BUCKET_NAME \
+  ParameterKey=ZipFile,ParameterValue=$ZIP_FILE \
   ParameterKey=KeyName,ParameterValue=$KEY_NAME \
   ParameterKey=BucketName,ParameterValue=$BUCKET_NAME \
   | jq -r .StackId \

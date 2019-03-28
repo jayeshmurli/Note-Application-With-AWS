@@ -68,6 +68,42 @@
 	       "Users": ["circleci"]
            }	
        },
+       "CircleCILambdaPolicy":{
+           "Type" : "AWS::IAM::ManagedPolicy",
+           "Properties" : {
+               "ManagedPolicyName" : "CircleCI-Lambda-Policy",
+	       "PolicyDocument":{
+	           "Version": "2012-10-17",
+                   "Statement": [
+                       {
+                           "Sid": "DevelopFunctions",
+                           "Effect": "Allow", 
+                           "Action": [
+                               "lambda:AddPermission",
+                               "lambda:PutFunctionConcurrency",
+			       "lambda:UpdateFunctionCode"
+                           ],
+                           "Resource": "arn:aws:lambda:${Region}:${AccountId}:function:*"
+                       },
+                       {
+                           "Sid": "DevelopEventSourceMappings",
+                           "Effect": "Allow", 
+                           "Action": [
+                               "lambda:DeleteEventSourceMapping",
+                               "lambda:UpdateEventSourceMapping",
+                               "lambda:CreateEventSourceMapping"
+                           ],
+                           "Resource": "*",
+                           "Condition": {
+                               "StringLike": {
+                               "lambda:FunctionArn": "arn:aws:lambda:*:*:function:*"
+                               }
+                           }
+                       }
+                  ]       
+	       }
+	   }    
+       },
        "CodeDeployEC2S3Policy": {
            "Type" : "AWS::IAM::ManagedPolicy",
            "Properties" : {
