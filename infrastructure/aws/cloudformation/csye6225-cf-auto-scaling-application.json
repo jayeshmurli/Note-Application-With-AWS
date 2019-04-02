@@ -24,6 +24,10 @@
         "ZipFile": {
             "Type": "String",
             "Description" : "Please enter string for ZipFile"
+         },
+        "CertificateArn": {
+            "Type": "String",
+            "Description" : "Please enter string for Certificate Arn"
          }
    },
    "Resources" : {
@@ -33,11 +37,7 @@
                "InstanceType"   : "t2.micro",
                "ImageId"	: {"Ref" : "ImageId" },
 	       "KeyName"	: {"Ref" : "KeyName" },
-	       "Tags"		: [ {
-		       		      "Key" : "Environment",
-		       		      "Value" : "Cloud"
-	       			  } ],
-	       "SecurityGroups" : [{ "Fn::ImportValue" :  {"Fn::Sub": "${NetworkStackName}-WebSecurityGroupID" }}],		  
+	       "SecurityGroups" : [{ "Ref" : "WebServerSecurityGroup"}],		  
                "AssociatePublicIpAddress" : "true",
 	       "IamInstanceProfile" : { "Fn::ImportValue" : "EC2InstanceProfile" },
 	       "LaunchConfigurationName" : "asg_launch_config",
@@ -63,19 +63,24 @@
        "WebServerGroup" : {
            "Type" : "AWS::AutoScaling::AutoScalingGroup",
            "Properties" : {
-               "AvailabilityZones" : { "Fn::GetAZs" : "" },
-               "LaunchConfigurationName" : "asg_launch_config",
+               "VPCZoneIdentifier" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}],
+	       "LaunchConfigurationName" : "asg_launch_config",
 	       "Cooldown" : "60",
                "MinSize" : "3",
                "MaxSize" : "10",
 	       "DesiredCapacity" : "3",
+	       "Tags"		: [ {
+		       		      "Key" : "Environment",
+		       		      "Value" : "Cloud",
+				      "PropagateAtLaunch" : true
+	       			  } ],
                "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
-           }
+           },
+	   "DependsOn" : "WebInstanceLaunchConfig"
        },
        "ElasticLoadBalancer" : {
            "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
            "Properties" : {
-               "AvailabilityZones" : { "Fn::GetAZs" : "" },
                "CrossZone" : "true",
                "Listeners" : [ {
                    "LoadBalancerPort" : "80",
@@ -85,9 +90,33 @@
 	       {
 		   "LoadBalancerPort" : "443",
                    "InstancePort" : "80",
-                   "Protocol" : "HTTPS"       
-	       }]
+		   "InstanceProtocol" : "HTTP",
+                   "Protocol" : "HTTPS",
+	           "SSLCertificateId" : {"Ref" : "CertificateArn"}	   
+	       }],
+	       "SecurityGroups" : [ { "Ref" : "ELBSecurityGroup" } ],
+	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}]
            }
+       },
+       "ELBSecurityGroup": {
+	   "Type" : "AWS::EC2::SecurityGroup",
+           "Properties" : {
+               "GroupDescription" : "Security group for the ELB",
+               "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
+               "SecurityGroupIngress" : [
+                   {
+	            "IpProtocol" : "tcp", 
+	 	    "FromPort" : 80, 
+		    "ToPort" : 80, 
+		    "CidrIp" : "0.0.0.0/0"
+		   },
+		   {
+		    "IpProtocol" : "tcp",
+                    "FromPort" : 80, 
+                    "ToPort" : 80, 
+                    "CidrIp" : "0.0.0.0/0"
+		   }]
+               }	   
        },
        "WebServerSecurityGroup" : {
           "Type" : "AWS::EC2::SecurityGroup",
@@ -98,8 +127,7 @@
                   "IpProtocol" : "tcp",
                   "FromPort" : "80",
                   "ToPort" : "80",
-                  "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},
-	          "SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "ELBSecurityGroup" , "GroupId" ] }
               },
               {
                   "IpProtocol" : "tcp",
@@ -111,8 +139,7 @@
                   "IpProtocol" : "tcp",
                   "FromPort" : "443",
                   "ToPort" : "443",
-                  "SourceSecurityGroupOwnerId" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.OwnerAlias"]},
-	          "SourceSecurityGroupName" : {"Fn::GetAtt" : ["ElasticLoadBalancer", "SourceSecurityGroup.GroupName"]}
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "ELBSecurityGroup" , "GroupId" ] }
               } ]
           }
       },
@@ -249,7 +276,7 @@
                "MasterUsername" : "csye6225master" ,
                "MasterUserPassword" : "csye6225password",
 	       "PubliclyAccessible" : true,
-	       "VPCSecurityGroups" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSecurityGroupID" } } ],
+	       "VPCSecurityGroups" : [ {"Ref" : "DBServerSecurityGroup"} ],
                "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
            },
            "DeletionPolicy" : "Snapshot"
