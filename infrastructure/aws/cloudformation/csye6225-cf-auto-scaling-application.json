@@ -94,6 +94,13 @@
                    "Protocol" : "HTTPS",
 	           "SSLCertificateId" : {"Ref" : "CertificateArn"}	   
 	       }],
+       	       "HealthCheck" : {
+               	   "Target" : "HTTP:80/",
+                   "HealthyThreshold" : "3",
+                   "UnhealthyThreshold" : "5",
+                   "Interval" : "30",
+                   "Timeout" : "5"
+               },
 	       "SecurityGroups" : [ { "Ref" : "ELBSecurityGroup" } ],
 	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}]
            }
