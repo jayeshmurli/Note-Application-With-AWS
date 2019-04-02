@@ -1,0 +1,356 @@
+{
+   "AWSTemplateFormatVersion" : "2010-09-09",
+   "Parameters" : {
+        "NetworkStackName": {
+            "Type": "String",
+            "Description" : "Please enter string for stack name"
+         },
+        "ImageId": {
+            "Type": "String",
+            "Description" : "Please enter string for AMI Image Id"
+         },
+        "KeyName": {
+            "Type": "String",
+            "Description" : "Please enter string for Key Name"
+         },
+        "BucketName": {
+            "Type": "String",
+            "Description" : "Please enter string for Bucket Name"
+         },
+        "LambdaBucketName": {
+            "Type": "String",
+            "Description" : "Please enter string for Lambda Bucket Name"
+         },
+        "ZipFile": {
+            "Type": "String",
+            "Description" : "Please enter string for ZipFile"
+         },
+        "CertificateArn": {
+            "Type": "String",
+            "Description" : "Please enter string for Certificate Arn"
+         }
+   },
+   "Resources" : {
+       "WebInstanceLaunchConfig": {  
+           "Type": "AWS::AutoScaling::LaunchConfiguration",
+           "Properties": {
+               "InstanceType"   : "t2.micro",
+               "ImageId"	: {"Ref" : "ImageId" },
+	       "KeyName"	: {"Ref" : "KeyName" },
+	       "SecurityGroups" : [{ "Ref" : "WebServerSecurityGroup"}],		  
+               "AssociatePublicIpAddress" : "true",
+	       "IamInstanceProfile" : { "Fn::ImportValue" : "EC2InstanceProfile" },
+	       "LaunchConfigurationName" : "asg_launch_config",
+	       "UserData":{
+	           "Fn::Base64":{
+                       "Fn::Join":[
+                           "",
+			   [
+			       "#!/bin/bash \n",
+			       "sudo service codedeploy-agent status \n",
+			       "echo export DB_HOST=",{"Fn::GetAtt": ["MariaDBInstance","Endpoint.Address"]}, " >> /etc/profile \n",
+			       "echo export DB_PORT=",{"Fn::GetAtt": ["MariaDBInstance","Endpoint.Port"]}," >> /etc/profile \n",
+			       "echo export DB_USERNAME='csye6225master' >> /etc/profile \n",
+			       "echo export DB_PASSWORD='csye6225password' >> /etc/profile \n",
+		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n",	       
+		    	       "echo export SNS_TOPIC=",{"Ref": "SNSTopic" }," >> /etc/profile \n"	       
+			   ]
+		        ]
+	           }		
+	       }
+           }
+       },
+       "WebServerGroup" : {
+           "Type" : "AWS::AutoScaling::AutoScalingGroup",
+           "Properties" : {
+               "VPCZoneIdentifier" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}],
+	       "LaunchConfigurationName" : "asg_launch_config",
+	       "Cooldown" : "60",
+               "MinSize" : "3",
+               "MaxSize" : "10",
+	       "DesiredCapacity" : "3",
+	       "Tags"		: [ {
+		       		      "Key" : "Environment",
+		       		      "Value" : "Cloud",
+				      "PropagateAtLaunch" : true
+	       			  } ],
+               "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
+           },
+	   "DependsOn" : "WebInstanceLaunchConfig"
+       },
+       "ElasticLoadBalancer" : {
+           "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+           "Properties" : {
+               "CrossZone" : "true",
+               "Listeners" : [ {
+                   "LoadBalancerPort" : "80",
+                   "InstancePort" : "80",
+                   "Protocol" : "HTTP"
+               },
+	       {
+		   "LoadBalancerPort" : "443",
+                   "InstancePort" : "80",
+		   "InstanceProtocol" : "HTTP",
+                   "Protocol" : "HTTPS",
+	           "SSLCertificateId" : {"Ref" : "CertificateArn"}	   
+	       }],
+	       "SecurityGroups" : [ { "Ref" : "ELBSecurityGroup" } ],
+	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}]
+           }
+       },
+       "ELBSecurityGroup": {
+	   "Type" : "AWS::EC2::SecurityGroup",
+           "Properties" : {
+               "GroupDescription" : "Security group for the ELB",
+               "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
+               "SecurityGroupIngress" : [
+                   {
+	            "IpProtocol" : "tcp", 
+	 	    "FromPort" : 80, 
+		    "ToPort" : 80, 
+		    "CidrIp" : "0.0.0.0/0"
+		   },
+		   {
+		    "IpProtocol" : "tcp",
+                    "FromPort" : 80, 
+                    "ToPort" : 80, 
+                    "CidrIp" : "0.0.0.0/0"
+		   }]
+               }	   
+       },
+       "WebServerSecurityGroup" : {
+          "Type" : "AWS::EC2::SecurityGroup",
+          "Properties" : {
+              "GroupDescription" : "Enable HTTP ingress",
+              "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
+              "SecurityGroupIngress" : [ {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "80",
+                  "ToPort" : "80",
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "ELBSecurityGroup" , "GroupId" ] }
+              },
+              {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "22",
+                  "ToPort" : "22",
+                  "CidrIp" : "0.0.0.0/0"
+              },
+              {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "443",
+                  "ToPort" : "443",
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "ELBSecurityGroup" , "GroupId" ] }
+              } ]
+          }
+      },
+      "DBServerSecurityGroup" : {
+          "Type" : "AWS::EC2::SecurityGroup",
+          "Properties" : {
+              "GroupDescription" : "Enable SSH ingress",
+              "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
+              "SecurityGroupIngress" : [
+              {
+                  "IpProtocol" : "tcp",
+                  "FromPort" : "3306",
+                  "ToPort" : "3306",
+                  "SourceSecurityGroupId" : { "Fn::GetAtt": [ "WebServerSecurityGroup" , "GroupId" ] }
+              } ]
+          }
+      },
+      "WebServerScaleUpPolicy": {
+    	  "Type": "AWS::AutoScaling::ScalingPolicy",
+          "Properties": {
+              "AdjustmentType": "ChangeInCapacity",
+              "AutoScalingGroupName": {
+                  "Ref": "WebServerGroup"
+              },
+              "Cooldown": "60",
+              "ScalingAdjustment": "1"
+          }
+      },
+      "WebServerScaleDownPolicy": {
+           "Type": "AWS::AutoScaling::ScalingPolicy",
+           "Properties": {
+                "AdjustmentType": "ChangeInCapacity",
+                "AutoScalingGroupName": {
+                    "Ref": "WebServerGroup"
+                },
+                "Cooldown": "60",
+                "ScalingAdjustment": "-1"
+           }
+      },
+      "CPUAlarmHigh": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+              "AlarmDescription": "Scale-up if CPU > 90% for 10 minutes",
+              "MetricName": "CPUUtilization",
+              "Namespace": "AWS/EC2",
+              "Statistic": "Average",
+              "Period": "300",
+              "EvaluationPeriods": "2",
+              "Threshold": "90",
+              "AlarmActions": [
+              {
+                  "Ref": "WebServerScaleUpPolicy"
+              }
+              ],
+              "Dimensions": [
+              {
+                   "Name": "AutoScalingGroupName",
+                   "Value": {
+                        "Ref": "WebServerGroup"
+                   }
+              }
+              ],
+              "ComparisonOperator": "GreaterThanThreshold"
+          }
+      },
+      "CPUAlarmLow": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+              "AlarmDescription": "Scale-down if CPU < 70% for 10 minutes",
+              "MetricName": "CPUUtilization",
+              "Namespace": "AWS/EC2",
+              "Statistic": "Average",
+              "Period": "300",
+              "EvaluationPeriods": "2",
+              "Threshold": "70",
+              "AlarmActions": [
+              {
+                  "Ref": "WebServerScaleDownPolicy"
+              }
+              ],
+              "Dimensions": [
+              {
+                   "Name": "AutoScalingGroupName",
+                   "Value": {
+                        "Ref": "WebServerGroup"
+                   }
+              }
+              ],
+              "ComparisonOperator": "LessThanThreshold"
+          }
+       },
+       "DynamoDBInstance" : {
+           "Type" : "AWS::DynamoDB::Table",
+	   "Properties" : {
+	       "TableName": "csye6225",
+	       "AttributeDefinitions" : [ { 
+	           "AttributeName" : "email", 
+	           "AttributeType" : "S" 
+               }],
+	       "KeySchema" : [ { 
+	           "AttributeName" : "email",
+	           "KeyType" : "HASH"
+	       } ],
+	       "ProvisionedThroughput" : {
+                   "ReadCapacityUnits" : "5",
+                   "WriteCapacityUnits" : "5"
+               },
+	       "TimeToLiveSpecification" : {
+		   "AttributeName" : "expiration",
+		   "Enabled" : true   
+	       }   
+           }
+       },
+       "myDBSubnetGroup" : {
+         "Type" : "AWS::RDS::DBSubnetGroup",
+         "Properties" : {
+            "DBSubnetGroupDescription" : "DB subnet group for RDS",
+            "SubnetIds" : [ { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" } },
+		            { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID2" } }
+	   	          ],
+            "Tags" : [ {"Key" : "String", "Value" : "String"} ]
+         }
+       },
+       "MariaDBInstance" : {
+           "Type" : "AWS::RDS::DBInstance",
+           "Properties" : {
+               "DBName" : "csye6225",
+               "DBInstanceClass" : "db.t2.medium",
+	       "AllocatedStorage" : "50",
+	       "MultiAZ" : false,
+	       "DBSubnetGroupName" : { "Ref" : "myDBSubnetGroup" },
+	       "DBInstanceIdentifier" : "csye6225-spring2019",	       
+               "Engine" : "MariaDB",
+               "MasterUsername" : "csye6225master" ,
+               "MasterUserPassword" : "csye6225password",
+	       "PubliclyAccessible" : true,
+	       "VPCSecurityGroups" : [ {"Ref" : "DBServerSecurityGroup"} ],
+               "Tags" : [ { "Key" : "Name", "Value" : "MariaDBInstance" } ]
+           },
+           "DeletionPolicy" : "Snapshot"
+       },
+       "SNSTopic": {
+           "Type": "AWS::SNS::Topic",
+           "Properties": {
+	       "TopicName": "password_reset",
+               "DisplayName": "password_reset",	       
+               "Subscription": [{
+                   "Endpoint": { "Fn::GetAtt": [ "LambdaFunction", "Arn" ] },
+                   "Protocol": "lambda"
+               }]
+           }
+       },
+       "LambdaFunction": {
+           "Type": "AWS::Lambda::Function",
+           "Properties": {
+	       "FunctionName": "password_reset",	   
+               "Handler": "com.csye6225.lambda.EmailHandler::handleRequest",
+	       "MemorySize": 256,
+	       "Environment": {
+                   "Variables": {
+                   	"AWS_DOMAIN_NAME": {  "Ref" : "BucketName"  }
+		   }
+	       },	
+               "Role": {"Fn::ImportValue" : "LambdaServiceRole"},
+               "Code": {
+                   "S3Bucket": {"Ref": "LambdaBucketName"},
+                   "S3Key": {"Ref": "ZipFile"}
+               },
+               "Runtime": "java8",
+               "Timeout": 100,
+               "TracingConfig": {
+                   "Mode": "Active"
+               }
+           }
+       },
+       "LambdaPermission": {
+           "Type": "AWS::Lambda::Permission",
+           "Properties": {
+               "Action": "lambda:InvokeFunction",
+               "FunctionName": {"Ref": "LambdaFunction"},
+               "Principal": "sns.amazonaws.com"
+               }
+       },
+       "CodeDeployApplication": {
+           "Type": "AWS::CodeDeploy::Application",
+           "Properties": {
+               "ApplicationName": "csye6225-webapp",
+               "ComputePlatform": "Server"
+           }
+       },
+       "DeploymentGroup": {
+           "Type": "AWS::CodeDeploy::DeploymentGroup",
+           "Properties": {
+               "ApplicationName": {"Ref": "CodeDeployApplication"},
+               "DeploymentGroupName" : "csye6225-webapp-deployment",
+               "ServiceRoleArn": {"Fn::ImportValue" : "CodeDeployServiceRole"},
+               "DeploymentStyle": {
+                   "DeploymentType": "IN_PLACE",
+                   "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+               },
+               "Ec2TagFilters": [ {
+                   "Key": "Environment",
+                   "Type": "KEY_AND_VALUE",
+                   "Value": "Cloud"
+               } ],
+               "DeploymentConfigName": "CodeDeployDefault.AllAtOnce",
+               "AutoRollbackConfiguration": {
+                   "Enabled" : true,
+                   "Events" : ["DEPLOYMENT_FAILURE"]
+               }
+           }
+       }
+   }  
+}   

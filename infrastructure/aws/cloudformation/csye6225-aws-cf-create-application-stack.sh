@@ -49,6 +49,10 @@ echo "Fetching latest AMI Image"
 ImageId=$(aws ec2 describe-images --owners self --filter "Name=name,Values=csye6225_??????????" --output json | jq -r '.Images | sort_by(.CreationDate) | last(.[]).ImageId')
 echo "Image ID : $ImageId "
 
+echo "Fetching AWS ARN for SSL Certificate"
+CertificateArn=$(aws acm list-certificates --certificate-statuses ISSUED --query "CertificateSummaryList[?DomainName=='csye6225-spring2019-$BUCKET_NAME.me']"  | jq -r ".[0].CertificateArn")
+echo "CertificateArn : $CertificateArn"
+
 
 echo "Creating stack..."
 STACK_ID=$( \
@@ -61,6 +65,7 @@ STACK_ID=$( \
   ParameterKey=ZipFile,ParameterValue=$ZIP_FILE \
   ParameterKey=KeyName,ParameterValue=$KEY_NAME \
   ParameterKey=BucketName,ParameterValue=$BUCKET_NAME \
+  ParameterKey=CertificateArn,ParameterValue=$CertificateArn \
   | jq -r .StackId \
 )
 
