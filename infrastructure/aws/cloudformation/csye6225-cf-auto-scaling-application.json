@@ -355,12 +355,12 @@
        "Route53RecordSet" : {
 	   "Type": "AWS::Route53::RecordSet",
 	   "Properties": {
-      		"HostedZoneName" : {"Fn::Join" : ["",[{"Ref" : "csye6225-spring2019-salvimi"},".me"]] },
-      		"Name": {"Fn::Join" : ["",["",{"Ref" : "csye6225-spring2019-salvimi"},".me"]] },
+      		"HostedZoneName" : { "Fn::Sub" : "csye6225-spring2019-${BucketName}.me" },
+      		"Name": { "Fn::Sub" : "csye6225-spring2019-${BucketName}.me"  },
       		"Type": "A",
       		"AliasTarget": 
       		{
-          		"HostedZoneId" : {"Fn::GetAtt": ["ElasticLoadBalancer", "CanonicalHostedZoneID"]},
+          		"HostedZoneId" : {"Fn::GetAtt": ["ElasticLoadBalancer", "CanonicalHostedZoneNameID"]},
           		"DNSName": {"Fn::GetAtt": ["ElasticLoadBalancer", "DNSName"]}
       		}
     	    }	
