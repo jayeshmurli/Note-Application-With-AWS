@@ -41,7 +41,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">${__P(ServerIP)}</stringProp>
           <stringProp name="HTTPSampler.port">${__P(ServerPort)}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/user/register</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -154,7 +154,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">${__P(ServerIP)}</stringProp>
           <stringProp name="HTTPSampler.port">${__P(ServerPort)}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/note</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -251,7 +251,7 @@ vars.put(&quot;base64HeaderValue&quot;,new String(encodedUsernamePassword));</st
           </elementProp>
           <stringProp name="HTTPSampler.domain">${__P(ServerIP)}</stringProp>
           <stringProp name="HTTPSampler.port">${__P(ServerPort)}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/note/${noteId}/attachments</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
