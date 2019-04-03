@@ -74,36 +74,48 @@
 		       		      "Value" : "Cloud",
 				      "PropagateAtLaunch" : true
 	       			  } ],
-               "LoadBalancerNames" : [ { "Ref" : "ElasticLoadBalancer" } ]
-           },
+               "TargetGroupARNs" : [{"Ref" : "WebTargetGroup" }]
+	   },
 	   "DependsOn" : "WebInstanceLaunchConfig"
        },
        "ElasticLoadBalancer" : {
-           "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+           "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
            "Properties" : {
-               "CrossZone" : "true",
-               "Listeners" : [ {
-                   "LoadBalancerPort" : "80",
-                   "InstancePort" : "80",
-                   "Protocol" : "HTTP"
-               },
-	       {
-		   "LoadBalancerPort" : "443",
-                   "InstancePort" : "80",
-		   "InstanceProtocol" : "HTTP",
-                   "Protocol" : "HTTPS",
-	           "SSLCertificateId" : {"Ref" : "CertificateArn"}	   
-	       }],
-       	       "HealthCheck" : {
-               	   "Target" : "TCP:22",
-                   "HealthyThreshold" : "3",
-                   "UnhealthyThreshold" : "10",
-                   "Interval" : "30",
-                   "Timeout" : "10"
-               },
+	       "Scheme" : "internet-facing",   
 	       "SecurityGroups" : [ { "Ref" : "ELBSecurityGroup" } ],
-	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}]
+	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}, { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" }}]
            }
+       },
+       "HttpsListener":{
+	   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+           "Properties": {
+               "DefaultActions": [{
+                   "Type": "forward",
+                   "TargetGroupArn": { "Ref": "WebTargetGroup" }
+               }],
+               "LoadBalancerArn": { "Ref": "ElasticLoadBalancer" },
+	       "Certificates" : [ {"CertificateArn" : {"Ref" : "CertificateArn"} } ],
+               "Port": "443",
+               "Protocol": "HTTPS"
+           }       
+       },
+       "WebTargetGroup" : {
+           "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+           "Properties" : {
+	       "HealthCheckProtocol": "HTTP",
+	       "HealthCheckPort" : "80",
+	       "HealthCheckPath" : "/",
+	       "Matcher" : {
+	           "HttpCode" : "200-499"
+	       }, 
+               "HealthCheckIntervalSeconds" : 60,
+               "UnhealthyThresholdCount" : 10,
+               "HealthyThresholdCount" : 10,
+               "Name" : "WebTargetGroup",
+               "Port" : 80,
+               "Protocol" : "HTTP",
+	       "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } }
+	   }    
        },
        "ELBSecurityGroup": {
 	   "Type" : "AWS::EC2::SecurityGroup",
@@ -362,7 +374,7 @@
       		"Type": "A",
       		"AliasTarget": 
       		{
-          		"HostedZoneId" : {"Fn::GetAtt": ["ElasticLoadBalancer", "CanonicalHostedZoneNameID"]},
+          		"HostedZoneId" : {"Fn::GetAtt": ["ElasticLoadBalancer", "CanonicalHostedZoneID"]},
           		"DNSName": {"Fn::GetAtt": ["ElasticLoadBalancer", "DNSName"]}
       		}
     	    }	
