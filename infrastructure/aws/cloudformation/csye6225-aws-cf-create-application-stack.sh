@@ -50,7 +50,7 @@ ImageId=$(aws ec2 describe-images --owners self --filter "Name=name,Values=csye6
 echo "Image ID : $ImageId "
 
 echo "Fetching AWS ARN for SSL Certificate"
-CertificateArn=$(aws acm list-certificates --certificate-statuses ISSUED --query "CertificateSummaryList[?DomainName=='csye6225-spring2019-iyerj.me']"  | jq -r ".[0].CertificateArn")
+CertificateArn=$(aws acm list-certificates --certificate-statuses ISSUED --query "CertificateSummaryList[?DomainName=='csye6225-spring2019-$BUCKET_NAME.me']"  | jq -r ".[0].CertificateArn")
 echo "CertificateArn : $CertificateArn"
 
 
