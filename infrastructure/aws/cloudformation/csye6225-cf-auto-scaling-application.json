@@ -2990,7 +2990,14 @@
                }
             ]
          }
-      }
+      },
+      "MyWebACLAssociation": {
+          "Type": "AWS::WAFRegional::WebACLAssociation",
+          "Properties": {
+              "ResourceArn": { "Ref": "ElasticLoadBalancer" },
+              "WebACLId": { "Ref": "wafrOwaspACL" }
+           }
+      }	   
 
    }  
 }   
