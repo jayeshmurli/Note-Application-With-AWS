@@ -10,20 +10,6 @@
 
 
 
-TEMPLATE_NAME=$1
-
-if [ -z "$1" ] 
-  then
-    echo "Error! Argument Required"
-    echo "Usage - sh script.sh <TemplateFile> " 
-    exit 1
-fi
-
-if [ ! -e $TEMPLATE_NAME ]
-     then
-       echo "Error! Template File not exisits"
-       exit 1
-fi
 
 echo "Enter Network Stack Name:"
 read NETWORK_STACK_NAME
@@ -37,11 +23,14 @@ read KEY_NAME
 echo "Enter Bucket Name for EC2"
 read BUCKET_NAME
 
-echo "Enter Bucket Name for Lambda Function"
+echo "Enter Bucket Name for Cloudformation Files"
 read LAMBDA_BUCKET_NAME
 
 echo "Enter Application Zip Name"
 read ZIP_FILE
+
+echo "Enter Template File Name"
+read TEMPLATE_FILE
 
 ###### REPLACE=$(sed -i 's/stackvariable/'${STACK_NAME}'/g' template.json)
 
@@ -58,7 +47,7 @@ echo "Creating stack..."
 STACK_ID=$( \
   aws cloudformation create-stack \
   --stack-name ${STACK_NAME} \
-  --template-body file://${TEMPLATE_NAME} \
+  --template-url https://s3.amazonaws.com/$LAMBDA_BUCKET_NAME/$TEMPLATE_FILE \
   --parameters ParameterKey=NetworkStackName,ParameterValue=${NETWORK_STACK_NAME}  \
   ParameterKey=ImageId,ParameterValue=$ImageId \
   ParameterKey=LambdaBucketName,ParameterValue=$LAMBDA_BUCKET_NAME \
