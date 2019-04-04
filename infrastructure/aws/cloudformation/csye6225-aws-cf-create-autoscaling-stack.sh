@@ -10,20 +10,6 @@
 
 
 
-TEMPLATE_NAME=$1
-
-if [ -z "$1" ] 
-  then
-    echo "Error! Argument Required"
-    echo "Usage - sh script.sh <TemplateFile> " 
-    exit 1
-fi
-
-if [ ! -e $TEMPLATE_NAME ]
-     then
-       echo "Error! Template File not exisits"
-       exit 1
-fi
 
 echo "Enter Network Stack Name:"
 read NETWORK_STACK_NAME
