@@ -295,9 +295,9 @@
 	       "Matcher" : {
 	           "HttpCode" : "200-499"
 	       }, 
-               "HealthCheckIntervalSeconds" : 60,
-               "UnhealthyThresholdCount" : 10,
-               "HealthyThresholdCount" : 10,
+               "HealthCheckIntervalSeconds" : 30,
+               "UnhealthyThresholdCount" : 5,
+               "HealthyThresholdCount" : 3,
                "Name" : "WebTargetGroup",
                "Port" : 80,
                "Protocol" : "HTTP",
