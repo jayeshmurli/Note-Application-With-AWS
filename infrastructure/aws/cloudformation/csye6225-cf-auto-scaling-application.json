@@ -240,7 +240,8 @@
 			       "echo export DB_USERNAME='csye6225master' >> /etc/profile \n",
 			       "echo export DB_PASSWORD='csye6225password' >> /etc/profile \n",
 		    	       "echo export S3_BUCKET=",{"Fn::Sub": "csye6225-spring2019-${BucketName}.me.csye6225.com" }," >> /etc/profile \n",	       
-		    	       "echo export SNS_TOPIC=",{"Ref": "SNSTopic" }," >> /etc/profile \n"	       
+		    	       "echo export SNS_TOPIC=",{"Ref": "SNSTopic" }," >> /etc/profile \n",
+			       "sudo service codedeploy-agent start"	       
 			   ]
 		        ]
 	           }		
@@ -395,7 +396,7 @@
               "Statistic": "Average",
               "Period": "60",
               "EvaluationPeriods": "1",
-              "Threshold": "10",
+              "Threshold": "30",
               "AlarmActions": [
               {
                   "Ref": "WebServerScaleUpPolicy"
@@ -421,7 +422,7 @@
               "Statistic": "Average",
               "Period": "60",
               "EvaluationPeriods": "1",
-              "Threshold": "5",
+              "Threshold": "20",
               "AlarmActions": [
               {
                   "Ref": "WebServerScaleDownPolicy"
