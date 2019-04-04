@@ -289,9 +289,6 @@
        "WebTargetGroup" : {
            "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
            "Properties" : {
-	       "HealthCheckProtocol": "HTTP",
-	       "HealthCheckPort" : "80",
-	       "HealthCheckPath" : "/",
 	       "Matcher" : {
 	           "HttpCode" : "200-499"
 	       }, 
@@ -301,7 +298,16 @@
                "Name" : "WebTargetGroup",
                "Port" : 80,
                "Protocol" : "HTTP",
-	       "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } }
+	       "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
+	       "TargetGroupAttributes": [
+               {
+                   "Key": "stickiness.enabled",
+                   "Value": "true"
+               },
+	       {
+                   "Key": "deregistration_delay.timeout_seconds",
+                   "Value": "20"
+               }]
 	   }    
        },
        "ELBSecurityGroup": {
