@@ -83,7 +83,7 @@
       "maxExpectedBodySize":{
          "Type":"Number",
          "Description":"Maximum number of bytes allowed in the body of the request. If you do not plan to allow large uploads, set it to the largest payload value that makes sense for your web application. Accepting unnecessarily large values can cause performance issues, if large payloads are used as an attack vector against your web application.",
-         "Default":4096
+         "Default":52096
       },
       "maxExpectedCookieSize":{
          "Type":"Number",
@@ -2814,9 +2814,7 @@
                },
                {
                   "Action":{
-                     "Type":{
-                        "Ref":"ruleAction"
-                     }
+                     "Type": "COUNT"
                   },
                   "Priority":80,
                   "RuleId":{
