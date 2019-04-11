@@ -262,7 +262,7 @@
 		       		      "Value" : "Cloud",
 				      "PropagateAtLaunch" : true
 	       			  } ],
-               "TargetGroupARNs" : [{"Ref" : "WebTargetGroup" }]
+               "TargetGroupARNs" : [{"Ref" : "WebTargetGroup" }, {"Ref" : "NoWAFWebTargetGroup"}]
 	   },
 	   "DependsOn" : "WebInstanceLaunchConfig"
        },
@@ -274,6 +274,14 @@
 	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}, { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" }}]
            }
        },
+       "NoWAFElasticLoadBalancer" : {
+           "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
+           "Properties" : {
+	       "Scheme" : "internet-facing",   
+	       "SecurityGroups" : [ { "Ref" : "ELBSecurityGroup" } ],
+	       "Subnets" : [{ "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-SubnetID" }}, { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-DBSubnetID1" }}]
+           }
+       },	   
        "HttpsListener":{
 	   "Type": "AWS::ElasticLoadBalancingV2::Listener",
            "Properties": {
@@ -282,6 +290,19 @@
                    "TargetGroupArn": { "Ref": "WebTargetGroup" }
                }],
                "LoadBalancerArn": { "Ref": "ElasticLoadBalancer" },
+	       "Certificates" : [ {"CertificateArn" : {"Ref" : "CertificateArn"} } ],
+               "Port": "443",
+               "Protocol": "HTTPS"
+           }       
+       },
+       "HttpsListener1":{
+	   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+           "Properties": {
+               "DefaultActions": [{
+                   "Type": "forward",
+                   "TargetGroupArn": { "Ref": "NoWAFWebTargetGroup" }
+               }],
+               "LoadBalancerArn": { "Ref": "NoWAFElasticLoadBalancer" },
 	       "Certificates" : [ {"CertificateArn" : {"Ref" : "CertificateArn"} } ],
                "Port": "443",
                "Protocol": "HTTPS"
@@ -311,18 +332,36 @@
                }]
 	   }    
        },
+       "NoWAFWebTargetGroup" : {
+           "Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+           "Properties" : {
+	       "Matcher" : {
+	           "HttpCode" : "200-499"
+	       }, 
+               "HealthCheckIntervalSeconds" : 30,
+               "UnhealthyThresholdCount" : 5,
+               "HealthyThresholdCount" : 3,
+               "Name" : "NoWAFWebTargetGroup",
+               "Port" : 80,
+               "Protocol" : "HTTP",
+	       "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
+	       "TargetGroupAttributes": [
+               {
+                   "Key": "stickiness.enabled",
+                   "Value": "true"
+               },
+	       {
+                   "Key": "deregistration_delay.timeout_seconds",
+                   "Value": "20"
+               }]
+	   }    
+       },
        "ELBSecurityGroup": {
 	   "Type" : "AWS::EC2::SecurityGroup",
            "Properties" : {
                "GroupDescription" : "Security group for the ELB",
                "VpcId" : { "Fn::ImportValue" : {"Fn::Sub": "${NetworkStackName}-VPCID" } },
                "SecurityGroupIngress" : [
-                   {
-	            "IpProtocol" : "tcp", 
-	 	    "FromPort" : 80, 
-		    "ToPort" : 80, 
-		    "CidrIp" : "0.0.0.0/0"
-		   },
 		   {
 		    "IpProtocol" : "tcp",
                     "FromPort" : 443, 
@@ -574,6 +613,19 @@
       		{
           		"HostedZoneId" : {"Fn::GetAtt": ["ElasticLoadBalancer", "CanonicalHostedZoneID"]},
           		"DNSName": {"Fn::GetAtt": ["ElasticLoadBalancer", "DNSName"]}
+      		}
+    	    }	
+	},
+       "NoWAFRoute53RecordSet" : {
+	   "Type": "AWS::Route53::RecordSet",
+	   "Properties": {
+      		"HostedZoneName" : { "Fn::Sub" : "csye6225-spring2019-${BucketName}.me." },
+      		"Name": { "Fn::Sub" : "nowaf.csye6225-spring2019-${BucketName}.me"  },
+      		"Type": "A",
+      		"AliasTarget": 
+      		{
+          		"HostedZoneId" : {"Fn::GetAtt": ["NoWAFElasticLoadBalancer", "CanonicalHostedZoneID"]},
+          		"DNSName": {"Fn::GetAtt": ["NoWAFElasticLoadBalancer", "DNSName"]}
       		}
     	    }	
 	},
